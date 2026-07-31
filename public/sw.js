@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'mi-presupuesto-v2';
+const CACHE_VERSION = 'mi-presupuesto-v3';
 
 const APP_SHELL = [
   '/',
@@ -17,29 +17,20 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('message', (event) => {
-  if (event.data?.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
+  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches
       .keys()
-      .then((keys) =>
-        Promise.all(
-          keys
-            .filter((key) => key !== CACHE_VERSION)
-            .map((key) => caches.delete(key))
-        )
-      )
+      .then((keys) => Promise.all(keys.filter((key) => key !== CACHE_VERSION).map((key) => caches.delete(key))))
       .then(() => self.clients.claim())
   );
 });
 
 self.addEventListener('fetch', (event) => {
   const request = event.request;
-
   if (request.method !== 'GET') return;
 
   const url = new URL(request.url);
@@ -50,9 +41,7 @@ self.addEventListener('fetch', (event) => {
       fetch(request)
         .then((response) => {
           const copy = response.clone();
-          caches
-            .open(CACHE_VERSION)
-            .then((cache) => cache.put('/index.html', copy));
+          caches.open(CACHE_VERSION).then((cache) => cache.put('/index.html', copy));
           return response;
         })
         .catch(() => caches.match('/index.html'))
@@ -60,12 +49,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  if (
-    url.pathname.startsWith('/src/') ||
-    url.pathname.startsWith('/@vite/')
-  ) {
-    return;
-  }
+  if (url.pathname.startsWith('/src/') || url.pathname.startsWith('/@vite/')) return;
 
   if (
     url.pathname.startsWith('/assets/') ||
@@ -78,13 +62,10 @@ self.addEventListener('fetch', (event) => {
           .then((response) => {
             if (!response || response.status !== 200) return response;
             const copy = response.clone();
-            caches
-              .open(CACHE_VERSION)
-              .then((cache) => cache.put(request, copy));
+            caches.open(CACHE_VERSION).then((cache) => cache.put(request, copy));
             return response;
           })
           .catch(() => cached);
-
         return cached || networkRequest;
       })
     );
