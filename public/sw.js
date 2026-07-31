@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'mi-presupuesto-v3';
+const CACHE_VERSION = 'mi-presupuesto-v4';
 
 const APP_SHELL = [
   '/',
@@ -11,9 +11,7 @@ const APP_SHELL = [
 ];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_VERSION).then((cache) => cache.addAll(APP_SHELL))
-  );
+  event.waitUntil(caches.open(CACHE_VERSION).then((cache) => cache.addAll(APP_SHELL)));
 });
 
 self.addEventListener('message', (event) => {
@@ -32,7 +30,6 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const request = event.request;
   if (request.method !== 'GET') return;
-
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
@@ -51,11 +48,7 @@ self.addEventListener('fetch', (event) => {
 
   if (url.pathname.startsWith('/src/') || url.pathname.startsWith('/@vite/')) return;
 
-  if (
-    url.pathname.startsWith('/assets/') ||
-    url.pathname.startsWith('/icons/') ||
-    url.pathname === '/manifest.webmanifest'
-  ) {
+  if (url.pathname.startsWith('/assets/') || url.pathname.startsWith('/icons/') || url.pathname === '/manifest.webmanifest') {
     event.respondWith(
       caches.match(request).then((cached) => {
         const networkRequest = fetch(request)
