@@ -9,12 +9,14 @@ import ProductCenter from './ProductCenter.jsx';
 import SecurityGate from './SecurityGate.jsx';
 import UXConsolidation from './UXConsolidation.jsx';
 import IncomeAverageCard from './IncomeAverageCard.jsx';
+import HistoryBaselineGuard from './HistoryBaselineGuard.jsx';
 import './styles.css';
 import './premium.css';
 import './advanced-finance.css';
 import './product.css';
 import './ux-consolidation.css';
 import './income-average.css';
+import './history-baseline.css';
 
 import { registerServiceWorker } from './registerServiceWorker';
 
@@ -27,6 +29,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <ProductCenter />
         <UXConsolidation />
         <IncomeAverageCard />
+        <HistoryBaselineGuard />
         <UpdatePrompt />
       </SecurityGate>
     </ErrorBoundary>
