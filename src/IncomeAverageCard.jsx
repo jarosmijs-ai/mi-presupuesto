@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { HISTORY_START_LABEL, isWithinHistory } from './historyBaseline';
 
 const INCOME_KEY = 'monthly-incomes';
 const SELECTED_MONTH_KEY = 'ux-selected-month';
@@ -23,13 +24,14 @@ function getSelectedMonth() {
 }
 
 function calculateStats() {
-  const incomes = loadIncomes();
+  const allIncomes = loadIncomes();
+  const incomes = allIncomes.filter((income) => isWithinHistory(income.date));
   const monthlyTotals = new Map();
 
   incomes.forEach((income) => {
     const month = String(income.date || '').slice(0, 7);
     const amount = Number(income.amount || 0);
-    if (!/^\d{4}-\d{2}$/.test(month) || amount <= 0) return;
+    if (amount <= 0) return;
     monthlyTotals.set(month, (monthlyTotals.get(month) || 0) + amount);
   });
 
@@ -79,7 +81,7 @@ export default function IncomeAverageCard() {
 
   const trend = useMemo(() => {
     if (!stats.monthsCount || stats.monthsCount === 1) {
-      return 'El promedio se volverá más preciso al registrar más meses.';
+      return `Tu historial comienza en ${HISTORY_START_LABEL}; el promedio será más preciso con cada nuevo mes.`;
     }
 
     if (Math.abs(stats.percentage) < 1) {
@@ -93,17 +95,17 @@ export default function IncomeAverageCard() {
   if (!target) return null;
 
   return createPortal(
-    <article className="summary-card income-average-card" aria-label="Promedio histórico de ingresos">
+    <article className="summary-card income-average-card" aria-label="Promedio de ingresos desde agosto de 2026">
       <div className="summary-icon" aria-hidden="true">≈</div>
       <div className="income-average-copy">
         <span>Ingreso mensual promedio</span>
         <strong>{currency.format(stats.average)}</strong>
         <small>
           {stats.monthsCount
-            ? `Basado en ${stats.monthsCount} mes${stats.monthsCount === 1 ? '' : 'es'} con ingresos · ${stats.entriesCount} registro${stats.entriesCount === 1 ? '' : 's'}`
-            : 'Registra tu primer ingreso para comenzar el promedio'}
+            ? `Desde ${HISTORY_START_LABEL} · ${stats.monthsCount} mes${stats.monthsCount === 1 ? '' : 'es'} · ${stats.entriesCount} registro${stats.entriesCount === 1 ? '' : 's'}`
+            : `El historial comenzará con los ingresos de ${HISTORY_START_LABEL}`}
         </small>
-        {!!stats.monthsCount && <p>{trend}</p>}
+        <p>{trend}</p>
       </div>
     </article>,
     target
