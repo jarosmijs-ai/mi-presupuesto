@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'mi-presupuesto-v6';
+const CACHE_VERSION = 'mi-presupuesto-v7';
 
 const APP_SHELL = [
   '/',
@@ -41,12 +41,8 @@ self.addEventListener('notificationclick', (event) => {
       const absoluteTarget = new URL(targetUrl, self.location.origin).href;
 
       for (const client of windowClients) {
-        if ('navigate' in client) {
-          await client.navigate(absoluteTarget);
-        }
-        if ('focus' in client) {
-          return client.focus();
-        }
+        if ('navigate' in client) await client.navigate(absoluteTarget);
+        if ('focus' in client) return client.focus();
       }
 
       return clients.openWindow(absoluteTarget);
