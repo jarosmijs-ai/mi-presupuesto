@@ -2,20 +2,20 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 
 import App from './App.jsx';
+import ErrorBoundary from './ErrorBoundary.jsx';
+import UpdatePrompt from './UpdatePrompt.jsx';
 import './styles.css';
+import './premium.css';
 
-import {
-  registerServiceWorker
-} from './registerServiceWorker';
+import { registerServiceWorker } from './registerServiceWorker';
 
-ReactDOM
-  .createRoot(
-    document.getElementById('root')
-  )
-  .render(
-    <React.StrictMode>
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <ErrorBoundary>
       <App />
-    </React.StrictMode>
-  );
+      <UpdatePrompt />
+    </ErrorBoundary>
+  </React.StrictMode>
+);
 
 registerServiceWorker();
