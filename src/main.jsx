@@ -16,6 +16,7 @@ import './advanced-finance.css';
 import './product.css';
 import './ux-consolidation.css';
 import './income-average.css';
+import './history-baseline.css';
 
 import { registerServiceWorker } from './registerServiceWorker';
 
