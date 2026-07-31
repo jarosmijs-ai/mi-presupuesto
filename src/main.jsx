@@ -9,6 +9,7 @@ import ProductCenter from './ProductCenter.jsx';
 import SecurityGate from './SecurityGate.jsx';
 import UXConsolidation from './UXConsolidation.jsx';
 import IncomeAverageCard from './IncomeAverageCard.jsx';
+import HistoryBaselineGuard from './HistoryBaselineGuard.jsx';
 import './styles.css';
 import './premium.css';
 import './advanced-finance.css';
@@ -27,6 +28,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <ProductCenter />
         <UXConsolidation />
         <IncomeAverageCard />
+        <HistoryBaselineGuard />
         <UpdatePrompt />
       </SecurityGate>
     </ErrorBoundary>
