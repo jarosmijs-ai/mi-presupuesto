@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 const CATEGORIES = ['Comidas', 'Gasolina', 'Teléfono', 'Luz', 'Internet', 'Préstamo', 'Otros'];
 const currency = new Intl.NumberFormat('es-GT', { style: 'currency', currency: 'GTQ' });
@@ -13,6 +13,7 @@ function safeLoad(key, fallback = []) {
 
 function save(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
+  window.dispatchEvent(new CustomEvent('budget-data-changed'));
 }
 
 function id() {
@@ -30,20 +31,50 @@ function dateForDay(day) {
   return `${monthKey()}-${String(safeDay).padStart(2, '0')}`;
 }
 
-function currentMonthIncomes() {
+function getFinancialSnapshot() {
+  const incomes = safeLoad('incomes');
+  const expenses = safeLoad('expenses');
   const month = monthKey();
-  return safeLoad('incomes').filter((item) => String(item.date || '').startsWith(month));
+  const monthIncomes = incomes.filter((item) => String(item.date || '').startsWith(month));
+  const monthExpenses = expenses.filter((item) => String(item.date || '').startsWith(month));
+  const sum = (items) => items.reduce((total, item) => total + Number(item.amount || 0), 0);
+
+  const monthlyIncome = sum(monthIncomes);
+  const monthlyExpenses = sum(monthExpenses);
+  const allIncome = sum(incomes);
+  const allExpenses = sum(expenses);
+
+  return {
+    monthlyIncome,
+    monthlyExpenses,
+    monthlyBalance: monthlyIncome - monthlyExpenses,
+    cumulativeBalance: allIncome - allExpenses,
+    incomeCount: monthIncomes.length
+  };
 }
 
 function updateHeaderIncome() {
   const box = document.querySelector('.income-box');
   if (!box) return;
-  const incomes = currentMonthIncomes();
-  const total = incomes.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+  const snapshot = getFinancialSnapshot();
   box.innerHTML = `
-    <span class="ux-income-label">INGRESOS REGISTRADOS ESTE MES</span>
-    <strong class="ux-income-value">${currency.format(total)}</strong>
-    <small>${incomes.length} movimiento${incomes.length === 1 ? '' : 's'} registrado${incomes.length === 1 ? '' : 's'}</small>
+    <div class="ux-balance-header-grid">
+      <div>
+        <span class="ux-income-label">INGRESOS REGISTRADOS ESTE MES</span>
+        <strong class="ux-income-value">${currency.format(snapshot.monthlyIncome)}</strong>
+        <small>${snapshot.incomeCount} movimiento${snapshot.incomeCount === 1 ? '' : 's'} registrado${snapshot.incomeCount === 1 ? '' : 's'}</small>
+      </div>
+      <div>
+        <span class="ux-income-label">BALANCE DEL MES</span>
+        <strong class="ux-income-value ${snapshot.monthlyBalance < 0 ? 'negative' : ''}">${currency.format(snapshot.monthlyBalance)}</strong>
+        <small>Después de ${currency.format(snapshot.monthlyExpenses)} en gastos</small>
+      </div>
+      <div>
+        <span class="ux-income-label">BALANCE ACUMULADO</span>
+        <strong class="ux-income-value ${snapshot.cumulativeBalance < 0 ? 'negative' : ''}">${currency.format(snapshot.cumulativeBalance)}</strong>
+        <small>Todos los ingresos menos todos los gastos</small>
+      </div>
+    </div>
   `;
 }
 
@@ -62,6 +93,64 @@ function getPendingPayments() {
   return recurring.filter(
     (item) => item.active && Number(item.day) <= today && !paidIds.has(item.id)
   );
+}
+
+function getRecurringById(recurringId) {
+  return safeLoad('premium-recurring-expenses').find((item) => item.id === recurringId);
+}
+
+function createRecurringExpense(item) {
+  return {
+    id: id(),
+    recurringId: item.id,
+    category: item.category || 'Otros',
+    amount: Number(item.amount || 0),
+    date: dateForDay(item.day),
+    note: `${item.name} · recurrente`
+  };
+}
+
+function recurringAlreadyPaid(recurringId) {
+  const month = monthKey();
+  return safeLoad('expenses').some(
+    (item) => item.recurringId === recurringId && String(item.date || '').startsWith(month)
+  );
+}
+
+function registerRecurringPayment(item) {
+  if (!item || recurringAlreadyPaid(item.id)) return null;
+  const expense = createRecurringExpense(item);
+  save('expenses', [expense, ...safeLoad('expenses')]);
+  return expense;
+}
+
+async function showPendingNotifications(pending) {
+  if (!pending.length || !('Notification' in window) || Notification.permission !== 'granted') return;
+  if (!('serviceWorker' in navigator)) return;
+
+  const registration = await navigator.serviceWorker.ready;
+  const today = new Date().toISOString().slice(0, 10);
+
+  for (const item of pending) {
+    const notificationKey = `recurring-notified:${today}:${item.id}`;
+    if (sessionStorage.getItem(notificationKey) === 'true') continue;
+
+    await registration.showNotification(`Pago pendiente: ${item.name}`, {
+      body: `${currency.format(item.amount)} · ${item.category || 'Otros'} · vencía el día ${item.day}`,
+      icon: '/icons/icon-192.png',
+      badge: '/icons/icon-192.png',
+      tag: `recurring-${monthKey()}-${item.id}`,
+      renotify: false,
+      requireInteraction: true,
+      actions: [
+        { action: 'mark-paid', title: 'Ya se pagó' },
+        { action: 'open-app', title: 'Abrir app' }
+      ],
+      data: { recurringId: item.id }
+    });
+
+    sessionStorage.setItem(notificationKey, 'true');
+  }
 }
 
 function exportCurrentMonthCsv() {
@@ -90,13 +179,41 @@ export default function UXConsolidation() {
   const [note, setNote] = useState('');
   const [pending, setPending] = useState(getPendingPayments);
   const [message, setMessage] = useState('');
+  const [undoExpense, setUndoExpense] = useState(null);
+  const undoTimerRef = useRef(null);
 
   useEffect(() => {
-    const timer = window.setTimeout(updateHeaderIncome, 50);
-    window.addEventListener('focus', updateHeaderIncome);
+    function refresh() {
+      updateHeaderIncome();
+      const nextPending = getPendingPayments();
+      setPending(nextPending);
+      showPendingNotifications(nextPending).catch(() => {});
+    }
+
+    const timer = window.setTimeout(refresh, 80);
+    window.addEventListener('focus', refresh);
+    window.addEventListener('budget-data-changed', refresh);
+
+    const params = new URLSearchParams(window.location.search);
+    const recurringId = params.get('paidRecurring');
+    if (recurringId) {
+      const recurring = getRecurringById(recurringId);
+      const expense = registerRecurringPayment(recurring);
+      if (expense) {
+        setMessage(`${recurring.name} registrado como pagado desde la notificación.`);
+        setUndoExpense(expense);
+      }
+      params.delete('paidRecurring');
+      const nextUrl = `${window.location.pathname}${params.toString() ? `?${params}` : ''}${window.location.hash}`;
+      window.history.replaceState({}, '', nextUrl);
+      window.setTimeout(refresh, 100);
+    }
+
     return () => {
       clearTimeout(timer);
-      window.removeEventListener('focus', updateHeaderIncome);
+      window.removeEventListener('focus', refresh);
+      window.removeEventListener('budget-data-changed', refresh);
+      if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
     };
   }, []);
 
@@ -105,30 +222,53 @@ export default function UXConsolidation() {
     [pending]
   );
 
+  function scheduleUndoClear() {
+    if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
+    undoTimerRef.current = window.setTimeout(() => setUndoExpense(null), 6000);
+  }
+
   function addExpense(event) {
     event.preventDefault();
     const numericAmount = Number(amount);
     if (!numericAmount || numericAmount <= 0) return;
-    const expenses = safeLoad('expenses');
-    save('expenses', [{ id: id(), category, amount: numericAmount, date: new Date().toISOString().slice(0, 10), note: note.trim() }, ...expenses]);
+    const expense = {
+      id: id(),
+      category,
+      amount: numericAmount,
+      date: new Date().toISOString().slice(0, 10),
+      note: note.trim()
+    };
+    save('expenses', [expense, ...safeLoad('expenses')]);
     setAmount('');
     setNote('');
-    setMessage('Gasto registrado.');
-    window.setTimeout(() => window.location.reload(), 450);
+    setMessage(`Gasto de ${currency.format(numericAmount)} registrado.`);
+    setUndoExpense(expense);
+    scheduleUndoClear();
+    updateHeaderIncome();
   }
 
   function markPaid(item) {
-    const expenses = safeLoad('expenses');
-    save('expenses', [{
-      id: id(),
-      recurringId: item.id,
-      category: item.category || 'Otros',
-      amount: Number(item.amount || 0),
-      date: dateForDay(item.day),
-      note: `${item.name} · recurrente`
-    }, ...expenses]);
+    const expense = registerRecurringPayment(item);
+    if (!expense) {
+      setMessage(`${item.name} ya estaba registrado este mes.`);
+      setPending(getPendingPayments());
+      return;
+    }
     setPending((current) => current.filter((payment) => payment.id !== item.id));
     setMessage(`${item.name} registrado como pagado.`);
+    setUndoExpense(expense);
+    scheduleUndoClear();
+    updateHeaderIncome();
+  }
+
+  function undoLastExpense() {
+    if (!undoExpense) return;
+    const expenses = safeLoad('expenses').filter((item) => item.id !== undoExpense.id);
+    save('expenses', expenses);
+    setMessage('Registro deshecho.');
+    setUndoExpense(null);
+    setPending(getPendingPayments());
+    updateHeaderIncome();
   }
 
   function openExisting(selector) {
@@ -155,6 +295,9 @@ export default function UXConsolidation() {
               <label>Monto del gasto
                 <div className="ux-amount-input"><span>Q</span><input autoFocus type="number" min="0.01" step="0.01" inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder="0.00" /></div>
               </label>
+              <div className="ux-quick-amounts">
+                {[25, 50, 100, 250].map((value) => <button type="button" key={value} onClick={() => setAmount(String(value))}>Q{value}</button>)}
+              </div>
               <div className="ux-category-chips">
                 {CATEGORIES.map((item) => <button type="button" className={category === item ? 'active' : ''} key={item} onClick={() => setCategory(item)}>{item}</button>)}
               </div>
@@ -181,7 +324,12 @@ export default function UXConsolidation() {
               <button type="button" onClick={exportCurrentMonthCsv}><span>⇩</span><div><strong>Exportar este mes</strong><small>Descargar movimientos en CSV</small></div><b>›</b></button>
             </section>
 
-            {message && <div className="ux-message">{message}</div>}
+            {message && (
+              <div className="ux-message">
+                <span>{message}</span>
+                {undoExpense && <button type="button" onClick={undoLastExpense}>Deshacer</button>}
+              </div>
+            )}
           </section>
         </div>
       )}
