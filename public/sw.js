@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'mi-presupuesto-v4';
+const CACHE_VERSION = 'mi-presupuesto-v5';
 
 const APP_SHELL = [
   '/',
@@ -24,6 +24,33 @@ self.addEventListener('activate', (event) => {
       .keys()
       .then((keys) => Promise.all(keys.filter((key) => key !== CACHE_VERSION).map((key) => caches.delete(key))))
       .then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+
+  const recurringId = event.notification.data?.recurringId;
+  const shouldMarkPaid = event.action === 'mark-paid';
+  const targetUrl = shouldMarkPaid && recurringId
+    ? `/?paidRecurring=${encodeURIComponent(recurringId)}`
+    : '/';
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(async (windowClients) => {
+      const absoluteTarget = new URL(targetUrl, self.location.origin).href;
+
+      for (const client of windowClients) {
+        if ('navigate' in client) {
+          await client.navigate(absoluteTarget);
+        }
+        if ('focus' in client) {
+          return client.focus();
+        }
+      }
+
+      return clients.openWindow(absoluteTarget);
+    })
   );
 });
 
