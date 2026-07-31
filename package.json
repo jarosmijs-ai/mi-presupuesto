@@ -1,7 +1,7 @@
 {
   "name": "mi-presupuesto-web",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@amcharts/amcharts5": "latest",
+    "@supabase/supabase-js": "latest",
     "@vitejs/plugin-react": "latest",
     "lucide-react": "latest",
     "react": "latest",
