@@ -8,11 +8,13 @@ import AdvancedFinanceHub from './AdvancedFinanceHub.jsx';
 import ProductCenter from './ProductCenter.jsx';
 import SecurityGate from './SecurityGate.jsx';
 import UXConsolidation from './UXConsolidation.jsx';
+import IncomeAverageCard from './IncomeAverageCard.jsx';
 import './styles.css';
 import './premium.css';
 import './advanced-finance.css';
 import './product.css';
 import './ux-consolidation.css';
+import './income-average.css';
 
 import { registerServiceWorker } from './registerServiceWorker';
 
@@ -24,6 +26,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <AdvancedFinanceHub />
         <ProductCenter />
         <UXConsolidation />
+        <IncomeAverageCard />
         <UpdatePrompt />
       </SecurityGate>
     </ErrorBoundary>
