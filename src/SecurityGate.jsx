@@ -33,14 +33,17 @@ export default function SecurityGate({ children }) {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    function lockApp() {
+    function handleVisibility() {
       if (document.visibilityState === 'hidden' && hasPin()) {
         sessionStorage.removeItem(UNLOCK_KEY);
+        setLocked(true);
+        setPin('');
+        setError('');
       }
     }
 
-    document.addEventListener('visibilitychange', lockApp);
-    return () => document.removeEventListener('visibilitychange', lockApp);
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, []);
 
   async function unlock(event) {
