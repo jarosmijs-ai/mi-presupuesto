@@ -1,0 +1,38 @@
+/* Minimal app header */
+.topbar{
+  min-height:0!important;
+  padding:10px 12px!important;
+  border-radius:14px!important;
+  background:transparent!important;
+  color:inherit!important;
+  box-shadow:none!important;
+  border:0!important;
+  align-items:center!important;
+}
+.topbar>div:first-child{display:flex;align-items:center;gap:8px;min-width:0}
+.topbar .eyebrow,.topbar p{display:none!important}
+.topbar h1{margin:0!important;font-size:1.08rem!important;line-height:1.1!important;letter-spacing:-.025em!important;white-space:nowrap}
+.topbar .income-box{margin-left:auto;min-width:0!important;width:auto!important;display:flex!important;align-items:center!important;gap:8px!important}
+.topbar .income-box label{display:none!important}
+.topbar .money-input{min-height:0!important;padding:0!important;border:0!important;background:transparent!important}
+.topbar .money-input>span{font-size:.72rem;color:#64748b}
+.topbar .money-input input{width:110px!important;padding:0!important;font-size:.9rem!important;text-align:right;color:inherit!important}
+html[data-theme='dark'] .topbar{background:transparent!important;box-shadow:none!important;border:0!important}
+
+/* Biometric unlock */
+.security-biometric-button{width:100%;min-height:52px;border:0;border-radius:16px;background:linear-gradient(135deg,#0f8b7f,#0b675f);color:#fff;font-weight:850;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;box-shadow:0 13px 28px rgba(15,118,110,.2)}
+.security-biometric-button span{font-size:24px;line-height:1}
+.security-biometric-button:disabled{opacity:.6;cursor:wait}
+.security-divider{display:flex;align-items:center;gap:10px;margin:5px 0;color:#94a3b8;font-size:11px}
+.security-divider:before,.security-divider:after{content:'';height:1px;flex:1;background:#dce3eb}
+.biometric-setting-message{display:block;padding:10px 12px;border-radius:12px;background:#edf8f6;color:#0f766e!important;font-weight:700}
+html[data-theme='dark'] .security-divider:before,html[data-theme='dark'] .security-divider:after{background:#31445c}
+html[data-theme='dark'] .biometric-setting-message{background:rgba(79,209,197,.1);color:#7ee7dc!important}
+
+@media(max-width:620px){
+  .topbar{padding:7px 4px!important;border-radius:0!important;gap:6px!important}
+  .topbar h1{font-size:1rem!important}
+  .topbar .income-box{max-width:48%}
+  .topbar .money-input input{width:92px!important;font-size:.82rem!important}
+  .security-biometric-button{min-height:50px}
+}
