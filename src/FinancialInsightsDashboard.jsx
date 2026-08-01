@@ -15,6 +15,15 @@ const currency = new Intl.NumberFormat('es-GT', {
   maximumFractionDigits: 2
 });
 
+const INFO = {
+  projectedExpenses: 'Suma el ritmo de gastos variables del mes, los pagos recurrentes ya registrados y los pagos pendientes.',
+  projectedBalance: 'Resta el gasto proyectado de los ingresos registrados del mes. No representa dinero ya gastado.',
+  available: 'Ingresos menos gastos registrados y pagos recurrentes pendientes.',
+  averageExpenses: 'Promedio de los gastos totales de los meses disponibles desde agosto de 2026.',
+  averageSavings: 'Promedio de ingresos menos gastos en los meses disponibles.',
+  savingsRate: 'Porcentaje promedio del ingreso que quedó después de los gastos.'
+};
+
 function load(key, fallback = []) {
   try {
     const parsed = JSON.parse(localStorage.getItem(key));
@@ -83,7 +92,14 @@ function buildSnapshot(month) {
   const pendingTotal = sum(pendingRecurring);
 
   const elapsed = elapsedDays(month);
+  const dataPoints = monthExpenses.length;
   const projectionReady = elapsed >= 3;
+  const projectionConfidence = !projectionReady
+    ? 'Sin datos suficientes'
+    : elapsed >= 10 && dataPoints >= 5
+      ? 'Proyección confiable'
+      : 'Proyección preliminar';
+
   const variableExpenses = monthExpenses.filter((item) => !item.recurringId);
   const paidRecurringTotal = sum(monthExpenses.filter((item) => item.recurringId));
   const realisticMinimum = expenses + pendingTotal;
@@ -100,7 +116,7 @@ function buildSnapshot(month) {
     totalsByMonth.set(key, (totalsByMonth.get(key) || 0) + Number(item.amount || 0));
   });
   const monthlyExpenseTotals = [...totalsByMonth.values()];
-  const averageExpenses = monthlyExpenseTotals.length ? sum(monthlyExpenseTotals.map((amount) => ({ amount }))) / monthlyExpenseTotals.length : 0;
+  const averageExpenses = monthlyExpenseTotals.length ? monthlyExpenseTotals.reduce((a, b) => a + b, 0) / monthlyExpenseTotals.length : 0;
 
   const incomesByMonth = new Map();
   allIncomes.forEach((item) => {
@@ -137,8 +153,39 @@ function buildSnapshot(month) {
     projectedExpenses,
     projectedBalance,
     projectionReady,
+    projectionConfidence,
+    elapsed,
+    dataPoints,
     health
   };
+}
+
+function InfoButton({ label, text, activeInfo, setActiveInfo }) {
+  const open = activeInfo === label;
+  return (
+    <span className="insights-info-wrap">
+      <button
+        type="button"
+        className="insights-info-button"
+        aria-label={`Explicar ${label}`}
+        aria-expanded={open}
+        onClick={(event) => {
+          event.stopPropagation();
+          setActiveInfo(open ? '' : label);
+        }}
+      >i</button>
+      {open && <span className="insights-info-popover" role="status">{text}</span>}
+    </span>
+  );
+}
+
+function MetricLabel({ children, infoKey, activeInfo, setActiveInfo }) {
+  return (
+    <span className="insights-label-row">
+      <span>{children}</span>
+      <InfoButton label={infoKey} text={INFO[infoKey]} activeInfo={activeInfo} setActiveInfo={setActiveInfo} />
+    </span>
+  );
 }
 
 export default function FinancialInsightsDashboard() {
@@ -148,6 +195,8 @@ export default function FinancialInsightsDashboard() {
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState('projection');
   const [message, setMessage] = useState('');
+  const [showMore, setShowMore] = useState(false);
+  const [activeInfo, setActiveInfo] = useState('');
 
   useEffect(() => {
     function refresh() {
@@ -228,26 +277,65 @@ export default function FinancialInsightsDashboard() {
 
             {tab === 'projection' && (
               <div className="insights-stack">
-                <div className="insights-metric-grid">
-                  <article><span>Gasto mensual promedio</span><strong>{currency.format(snapshot.averageExpenses)}</strong></article>
-                  <article><span>Ahorro mensual promedio</span><strong>{currency.format(snapshot.averageSavings)}</strong></article>
-                  <article><span>Tasa de ahorro</span><strong>{snapshot.savingsRate.toFixed(1)}%</strong></article>
-                  <article><span>Gasto proyectado</span><strong>{snapshot.projectionReady ? currency.format(snapshot.projectedExpenses) : 'Sin datos suficientes'}</strong></article>
+                <section className={`projection-confidence ${snapshot.projectionReady ? 'is-ready' : ''}`}>
+                  <div>
+                    <strong>{snapshot.projectionConfidence}</strong>
+                    <small>{snapshot.elapsed > 0 ? `Basada en ${snapshot.elapsed} día${snapshot.elapsed === 1 ? '' : 's'} y ${snapshot.dataPoints} registro${snapshot.dataPoints === 1 ? '' : 's'} de gasto` : 'El mes todavía no ha iniciado'}</small>
+                  </div>
+                  <span>{snapshot.projectionReady ? (snapshot.projectionConfidence === 'Proyección confiable' ? 'Alta' : 'Inicial') : 'Pendiente'}</span>
+                </section>
+
+                <div className="insights-primary-grid">
+                  <article>
+                    <MetricLabel infoKey="available" activeInfo={activeInfo} setActiveInfo={setActiveInfo}>Disponible realista</MetricLabel>
+                    <strong className={snapshot.availableAfterPending < 0 ? 'negative' : ''}>{currency.format(snapshot.availableAfterPending)}</strong>
+                  </article>
+                  <article>
+                    <MetricLabel infoKey="projectedExpenses" activeInfo={activeInfo} setActiveInfo={setActiveInfo}>Gasto proyectado</MetricLabel>
+                    <strong>{snapshot.projectionReady ? currency.format(snapshot.projectedExpenses) : 'Sin datos suficientes'}</strong>
+                  </article>
                 </div>
+
                 <section className="insights-highlight">
-                  <span>{snapshot.projectionReady ? 'AL CIERRE DEL MES' : 'PROYECCIÓN AÚN NO DISPONIBLE'}</span>
+                  <span className="insights-label-row">
+                    <span>{snapshot.projectionReady ? 'PROYECCIÓN DE CIERRE' : 'PROYECCIÓN AÚN NO DISPONIBLE'}</span>
+                    <InfoButton label="projectedBalance" text={INFO.projectedBalance} activeInfo={activeInfo} setActiveInfo={setActiveInfo} />
+                  </span>
                   <strong className={snapshot.projectionReady && snapshot.projectedBalance < 0 ? 'negative' : ''}>
                     {snapshot.projectionReady ? currency.format(snapshot.projectedBalance) : '—'}
                   </strong>
                   <p>{snapshot.projectionReady
-                    ? 'La estimación combina gastos registrados, ritmo de gastos variables y recurrentes pendientes.'
-                    : 'La proyección comenzará cuando el mes haya iniciado y existan al menos 3 días de datos.'}</p>
+                    ? 'Estimación basada en el ritmo actual; puede cambiar con nuevos ingresos o gastos.'
+                    : 'La proyección comenzará cuando existan al menos 3 días de datos.'}</p>
                 </section>
+
                 <section className="insights-pending">
                   <div><span>Balance actual</span><strong>{currency.format(snapshot.income - snapshot.expenses)}</strong></div>
                   <div><span>Pagos pendientes</span><strong>-{currency.format(snapshot.pendingTotal)}</strong></div>
                   <div><span>Disponible realista</span><strong className={snapshot.availableAfterPending < 0 ? 'negative' : ''}>{currency.format(snapshot.availableAfterPending)}</strong></div>
                 </section>
+
+                <button type="button" className="insights-more-toggle" onClick={() => setShowMore((value) => !value)}>
+                  {showMore ? 'Ocultar estadísticas' : 'Ver más estadísticas'}
+                  <span>{showMore ? '⌃' : '⌄'}</span>
+                </button>
+
+                {showMore && (
+                  <div className="insights-metric-grid insights-secondary-stats">
+                    <article>
+                      <MetricLabel infoKey="averageExpenses" activeInfo={activeInfo} setActiveInfo={setActiveInfo}>Gasto mensual promedio</MetricLabel>
+                      <strong>{currency.format(snapshot.averageExpenses)}</strong>
+                    </article>
+                    <article>
+                      <MetricLabel infoKey="averageSavings" activeInfo={activeInfo} setActiveInfo={setActiveInfo}>Ahorro mensual promedio</MetricLabel>
+                      <strong>{currency.format(snapshot.averageSavings)}</strong>
+                    </article>
+                    <article>
+                      <MetricLabel infoKey="savingsRate" activeInfo={activeInfo} setActiveInfo={setActiveInfo}>Tasa de ahorro</MetricLabel>
+                      <strong>{snapshot.savingsRate.toFixed(1)}%</strong>
+                    </article>
+                  </div>
+                )}
               </div>
             )}
 
