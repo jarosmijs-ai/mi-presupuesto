@@ -14,6 +14,7 @@ import FinancialInsightsDashboard from './FinancialInsightsDashboard.jsx';
 import IncomeUsageCard from './IncomeUsageCard.jsx';
 import LoanSafetyAdvisor from './LoanSafetyAdvisor.jsx';
 import CreditDecisionCenter from './CreditDecisionCenter.jsx';
+import BiometricSettings from './BiometricSettings.jsx';
 import './styles.css';
 import './premium.css';
 import './advanced-finance.css';
@@ -27,6 +28,7 @@ import './loan-safety-advisor.css';
 import './visual-polish.css';
 import './credit-decision-center.css';
 import './compact-summary.css';
+import './minimal-shell.css';
 
 import { registerServiceWorker } from './registerServiceWorker';
 
@@ -37,6 +39,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <App />
         <AdvancedFinanceHub />
         <ProductCenter />
+        <BiometricSettings />
         <UXConsolidation />
         <IncomeAverageCard />
         <HistoryBaselineGuard />
