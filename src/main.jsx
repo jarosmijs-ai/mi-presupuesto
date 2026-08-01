@@ -29,6 +29,7 @@ import './visual-polish.css';
 import './credit-decision-center.css';
 import './compact-summary.css';
 import './minimal-shell.css';
+import './primary-biometric.css';
 
 import { registerServiceWorker } from './registerServiceWorker';
 
