@@ -56,7 +56,7 @@ function elapsedDays(month) {
   const today = new Date();
   const current = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
   if (month < current) return daysInMonth(month);
-  if (month > current) return 1;
+  if (month > current) return 0;
   return Math.max(1, today.getDate());
 }
 
@@ -82,11 +82,16 @@ function buildSnapshot(month) {
   const pendingRecurring = recurring.filter((item) => item.active && !paidRecurringIds.has(item.id));
   const pendingTotal = sum(pendingRecurring);
 
+  const elapsed = elapsedDays(month);
+  const projectionReady = elapsed >= 3;
   const variableExpenses = monthExpenses.filter((item) => !item.recurringId);
-  const dailyVariable = sum(variableExpenses) / elapsedDays(month);
-  const projectedVariable = dailyVariable * daysInMonth(month);
   const paidRecurringTotal = sum(monthExpenses.filter((item) => item.recurringId));
-  const projectedExpenses = Math.max(expenses, projectedVariable + paidRecurringTotal + pendingTotal);
+  const realisticMinimum = expenses + pendingTotal;
+  const dailyVariable = projectionReady ? sum(variableExpenses) / elapsed : 0;
+  const projectedVariable = projectionReady ? dailyVariable * daysInMonth(month) : sum(variableExpenses);
+  const projectedExpenses = projectionReady
+    ? Math.max(expenses, projectedVariable + paidRecurringTotal + pendingTotal)
+    : realisticMinimum;
   const projectedBalance = income - projectedExpenses;
 
   const totalsByMonth = new Map();
@@ -112,7 +117,7 @@ function buildSnapshot(month) {
   let health = 'Sin datos suficientes';
   if (income > 0) {
     if (income - expenses - pendingTotal < 0) health = 'Balance negativo';
-    else if (projectedBalance < 0 || pendingTotal > income * 0.35) health = 'Atención';
+    else if ((projectionReady && projectedBalance < 0) || pendingTotal > income * 0.35) health = 'Atención';
     else health = 'Estable';
   }
 
@@ -131,6 +136,7 @@ function buildSnapshot(month) {
     availableAfterPending: income - expenses - pendingTotal,
     projectedExpenses,
     projectedBalance,
+    projectionReady,
     health
   };
 }
@@ -202,7 +208,7 @@ export default function FinancialInsightsDashboard() {
           <span>Disponible después de pendientes</span>
           <strong className={snapshot.availableAfterPending < 0 ? 'negative' : ''}>{currency.format(snapshot.availableAfterPending)}</strong>
           <small>{currency.format(snapshot.pendingTotal)} aún por pagar · Estado: {snapshot.health}</small>
-          <p>Proyección de cierre: {currency.format(snapshot.projectedBalance)}</p>
+          <p>{snapshot.projectionReady ? `Proyección de cierre: ${currency.format(snapshot.projectedBalance)}` : 'Proyección disponible después de 3 días del mes'}</p>
         </div>
       </article>
 
@@ -226,12 +232,16 @@ export default function FinancialInsightsDashboard() {
                   <article><span>Gasto mensual promedio</span><strong>{currency.format(snapshot.averageExpenses)}</strong></article>
                   <article><span>Ahorro mensual promedio</span><strong>{currency.format(snapshot.averageSavings)}</strong></article>
                   <article><span>Tasa de ahorro</span><strong>{snapshot.savingsRate.toFixed(1)}%</strong></article>
-                  <article><span>Gasto proyectado</span><strong>{currency.format(snapshot.projectedExpenses)}</strong></article>
+                  <article><span>Gasto proyectado</span><strong>{snapshot.projectionReady ? currency.format(snapshot.projectedExpenses) : 'Sin datos suficientes'}</strong></article>
                 </div>
                 <section className="insights-highlight">
-                  <span>AL CIERRE DEL MES</span>
-                  <strong className={snapshot.projectedBalance < 0 ? 'negative' : ''}>{currency.format(snapshot.projectedBalance)}</strong>
-                  <p>La estimación combina gastos registrados, ritmo de gastos variables y recurrentes pendientes.</p>
+                  <span>{snapshot.projectionReady ? 'AL CIERRE DEL MES' : 'PROYECCIÓN AÚN NO DISPONIBLE'}</span>
+                  <strong className={snapshot.projectionReady && snapshot.projectedBalance < 0 ? 'negative' : ''}>
+                    {snapshot.projectionReady ? currency.format(snapshot.projectedBalance) : '—'}
+                  </strong>
+                  <p>{snapshot.projectionReady
+                    ? 'La estimación combina gastos registrados, ritmo de gastos variables y recurrentes pendientes.'
+                    : 'La proyección comenzará cuando el mes haya iniciado y existan al menos 3 días de datos.'}</p>
                 </section>
                 <section className="insights-pending">
                   <div><span>Balance actual</span><strong>{currency.format(snapshot.income - snapshot.expenses)}</strong></div>
