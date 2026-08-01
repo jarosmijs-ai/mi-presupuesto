@@ -26,6 +26,7 @@ import './income-usage.css';
 import './loan-safety-advisor.css';
 import './visual-polish.css';
 import './credit-decision-center.css';
+import './compact-summary.css';
 
 import { registerServiceWorker } from './registerServiceWorker';
 
