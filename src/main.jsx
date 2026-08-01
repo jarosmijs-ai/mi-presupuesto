@@ -11,6 +11,8 @@ import UXConsolidation from './UXConsolidation.jsx';
 import IncomeAverageCard from './IncomeAverageCard.jsx';
 import HistoryBaselineGuard from './HistoryBaselineGuard.jsx';
 import FinancialInsightsDashboard from './FinancialInsightsDashboard.jsx';
+import IncomeUsageCard from './IncomeUsageCard.jsx';
+import LoanSafetyAdvisor from './LoanSafetyAdvisor.jsx';
 import './styles.css';
 import './premium.css';
 import './advanced-finance.css';
@@ -19,6 +21,8 @@ import './ux-consolidation.css';
 import './income-average.css';
 import './history-baseline.css';
 import './financial-insights.css';
+import './income-usage.css';
+import './loan-safety-advisor.css';
 
 import { registerServiceWorker } from './registerServiceWorker';
 
@@ -33,6 +37,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <IncomeAverageCard />
         <HistoryBaselineGuard />
         <FinancialInsightsDashboard />
+        <IncomeUsageCard />
+        <LoanSafetyAdvisor />
         <UpdatePrompt />
       </SecurityGate>
     </ErrorBoundary>
