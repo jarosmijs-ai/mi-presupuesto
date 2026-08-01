@@ -23,6 +23,7 @@ import './history-baseline.css';
 import './financial-insights.css';
 import './income-usage.css';
 import './loan-safety-advisor.css';
+import './visual-polish.css';
 
 import { registerServiceWorker } from './registerServiceWorker';
 
