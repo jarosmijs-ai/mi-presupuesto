@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const PIN_KEY = 'app-pin-hash';
 const UNLOCK_KEY = 'app-session-unlocked';
@@ -31,6 +31,8 @@ export default function SecurityGate({ children }) {
   );
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
+  const [checking, setChecking] = useState(false);
+  const inputRef = useRef(null);
 
   useEffect(() => {
     function handleVisibility() {
@@ -46,48 +48,101 @@ export default function SecurityGate({ children }) {
     return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, []);
 
+  useEffect(() => {
+    if (locked) window.setTimeout(() => inputRef.current?.focus(), 120);
+  }, [locked]);
+
   async function unlock(event) {
     event.preventDefault();
+    if (pin.length < 4 || checking) return;
+
+    setChecking(true);
     const expected = localStorage.getItem(PIN_KEY);
     const actual = await hashPin(pin);
 
     if (actual !== expected) {
-      setError('PIN incorrecto.');
+      setError('El PIN no coincide. Inténtalo nuevamente.');
       setPin('');
+      setChecking(false);
+      inputRef.current?.focus();
       return;
     }
 
     sessionStorage.setItem(UNLOCK_KEY, 'true');
     setLocked(false);
+    setChecking(false);
   }
 
   if (!locked) return children;
 
   return (
     <main className="security-screen">
-      <section className="security-card">
-        <div className="security-logo">Q</div>
-        <span>MI PRESUPUESTO</span>
-        <h1>Tu información está protegida</h1>
-        <p>Ingresa tu PIN para continuar.</p>
+      <div className="security-ambient security-ambient-one" />
+      <div className="security-ambient security-ambient-two" />
+
+      <section className="security-card" aria-labelledby="security-title">
+        <div className="security-brand-row">
+          <div className="security-logo" aria-hidden="true">Q</div>
+          <div>
+            <span>MI PRESUPUESTO</span>
+            <small>Acceso protegido</small>
+          </div>
+        </div>
+
+        <div className="security-copy">
+          <div className="security-lock-icon" aria-hidden="true">⌁</div>
+          <h1 id="security-title">Bienvenido de nuevo</h1>
+          <p>Ingresa tu PIN para consultar tu información financiera.</p>
+        </div>
+
         <form onSubmit={unlock}>
-          <input
-            autoFocus
-            inputMode="numeric"
-            type="password"
-            minLength="4"
-            maxLength="8"
-            value={pin}
-            onChange={(event) => {
-              setPin(event.target.value.replace(/\D/g, ''));
-              setError('');
-            }}
-            placeholder="••••"
-            aria-label="PIN"
-          />
-          {error && <small className="security-error">{error}</small>}
-          <button type="submit" disabled={pin.length < 4}>Desbloquear</button>
+          <label htmlFor="security-pin">PIN de seguridad</label>
+          <div
+            className={`security-pin-field ${error ? 'has-error' : ''}`}
+            onClick={() => inputRef.current?.focus()}
+          >
+            <div className="security-pin-dots" aria-hidden="true">
+              {[0, 1, 2, 3].map((index) => (
+                <span key={index} className={pin.length > index ? 'filled' : ''} />
+              ))}
+              {pin.length > 4 && <b>+{pin.length - 4}</b>}
+            </div>
+            <input
+              ref={inputRef}
+              id="security-pin"
+              autoComplete="current-password"
+              inputMode="numeric"
+              type="password"
+              minLength="4"
+              maxLength="8"
+              value={pin}
+              onChange={(event) => {
+                setPin(event.target.value.replace(/\D/g, '').slice(0, 8));
+                setError('');
+              }}
+              aria-describedby={error ? 'security-error' : undefined}
+            />
+          </div>
+
+          <div className="security-helper-row">
+            <small>De 4 a 8 dígitos</small>
+            <small>{pin.length}/8</small>
+          </div>
+
+          {error && (
+            <div id="security-error" className="security-error" role="alert">
+              <span>!</span>{error}
+            </div>
+          )}
+
+          <button type="submit" disabled={pin.length < 4 || checking}>
+            {checking ? 'Verificando…' : 'Desbloquear'}
+          </button>
         </form>
+
+        <p className="security-privacy-note">
+          Tus datos permanecen guardados en este dispositivo.
+        </p>
       </section>
     </main>
   );
