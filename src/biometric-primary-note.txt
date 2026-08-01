@@ -1,1 +1,0 @@
-Biometric verification is attempted first. PIN remains available only as fallback.
