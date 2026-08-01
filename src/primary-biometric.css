@@ -1,0 +1,38 @@
+/* The app header is a single compact row. Detailed metrics live in the homepage cards. */
+.topbar{
+  min-height:34px!important;
+  padding:3px 4px!important;
+  margin:0 0 5px!important;
+  gap:8px!important;
+  border-radius:0!important;
+}
+.topbar>div:first-child{display:block!important;min-width:0}
+.topbar h1{font-size:.92rem!important;line-height:1!important;font-weight:850!important}
+.topbar .income-box{margin-left:auto!important;max-width:58%!important;width:auto!important}
+.topbar .ux-balance-header-grid{display:block!important}
+.topbar .ux-balance-header-grid>div{display:none!important}
+.topbar .ux-balance-header-grid>div:nth-child(3){display:flex!important;align-items:baseline!important;gap:6px!important;padding:0!important;border:0!important;background:transparent!important}
+.topbar .ux-income-label{font-size:.56rem!important;white-space:nowrap!important;color:#64748b!important}
+.topbar .ux-income-value{font-size:.84rem!important;line-height:1!important;margin:0!important;white-space:nowrap!important}
+.topbar .ux-balance-header-grid small{display:none!important}
+
+/* Primary biometric gate */
+.security-card.biometric-primary{padding:22px!important;text-align:center!important}
+.biometric-primary .security-brand-row{justify-content:center}
+.biometric-primary .security-copy{padding:24px 0 16px!important}
+.biometric-primary .security-copy p{margin-top:6px!important}
+.security-biometric-status{display:grid;place-items:center;gap:10px;min-height:94px;margin:4px 0 12px}
+.security-biometric-pulse{width:70px;height:70px;border-radius:50%;display:grid;place-items:center;background:rgba(15,139,127,.11);color:#0f766e;font-size:34px;animation:biometricPulse 1.5s ease-in-out infinite}
+.security-biometric-status strong{font-size:.9rem}
+.security-pin-fallback{margin-top:8px;border:0;background:transparent;color:#64748b;font-size:.78rem;font-weight:800;text-decoration:underline;cursor:pointer}
+.security-auto-form.is-fallback{margin-top:10px}
+@keyframes biometricPulse{0%,100%{box-shadow:0 0 0 0 rgba(15,139,127,.18)}50%{box-shadow:0 0 0 14px rgba(15,139,127,0)}}
+
+@media(max-width:620px){
+  .topbar{min-height:30px!important;padding:1px 2px!important;margin-bottom:3px!important}
+  .topbar h1{font-size:.82rem!important}
+  .topbar .income-box{max-width:62%!important}
+  .topbar .ux-income-label{display:none!important}
+  .topbar .ux-income-value{font-size:.78rem!important}
+  .security-card.biometric-primary{padding:19px!important}
+}
