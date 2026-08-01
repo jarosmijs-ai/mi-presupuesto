@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { hasPin } from './SecurityGate';
-import { hasBiometric, isBiometricAvailable, registerBiometric, removeBiometric } from './biometricAuth';
+import { authenticateBiometric, hasBiometric, isBiometricAvailable, registerBiometric, removeBiometric } from './biometricAuth';
 
 export default function BiometricSettings() {
   const [target, setTarget] = useState(null);
@@ -21,17 +21,24 @@ export default function BiometricSettings() {
 
   async function enable() {
     if (!hasPin()) {
-      setMessage('Activa primero un PIN para conservar un método de respaldo.');
+      setMessage('Configura primero un PIN de respaldo.');
       return;
     }
     setBusy(true);
-    setMessage('');
+    setMessage('Abriendo la seguridad del dispositivo…');
     try {
       await registerBiometric();
+      const verified = await authenticateBiometric();
+      if (!verified) throw new Error('La biometría se registró, pero no pudo verificarse. Inténtalo otra vez.');
       setEnabled(true);
-      setMessage('Biometría activada en este dispositivo.');
+      setMessage('Biometría verificada. Será el método principal al abrir la app.');
     } catch (error) {
-      if (error?.name !== 'NotAllowedError') setMessage(error.message || 'No se pudo activar la biometría.');
+      setEnabled(hasBiometric());
+      if (error?.name === 'NotAllowedError') {
+        setMessage('La verificación fue cancelada o bloqueada por el navegador.');
+      } else {
+        setMessage(error.message || 'No se pudo activar la biometría.');
+      }
     } finally {
       setBusy(false);
     }
@@ -40,7 +47,7 @@ export default function BiometricSettings() {
   function disable() {
     removeBiometric();
     setEnabled(false);
-    setMessage('Biometría desactivada. El PIN sigue activo.');
+    setMessage('Biometría desactivada. El PIN queda como método principal.');
   }
 
   if (!target) return null;
@@ -48,12 +55,12 @@ export default function BiometricSettings() {
   return createPortal(
     <section className="product-setting-card product-stack biometric-setting-card">
       <div>
-        <h3>Huella o reconocimiento facial</h3>
-        <p>{available ? 'Desbloquea con la seguridad integrada del dispositivo. El PIN permanece como respaldo.' : 'Este dispositivo o navegador no ofrece biometría web compatible.'}</p>
+        <h3>Acceso biométrico</h3>
+        <p>{available ? 'Será la verificación principal. El PIN solo aparecerá como respaldo.' : 'Este navegador no ofrece un autenticador integrado compatible.'}</p>
       </div>
       {available && (
         <button type="button" className={enabled ? 'product-secondary' : ''} onClick={enabled ? disable : enable} disabled={busy}>
-          {busy ? 'Configurando…' : enabled ? 'Desactivar biometría' : 'Activar biometría'}
+          {busy ? 'Verificando…' : enabled ? 'Desactivar biometría' : 'Activar y comprobar biometría'}
         </button>
       )}
       {message && <small className="biometric-setting-message">{message}</small>}
