@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'mi-presupuesto-v9';
+const CACHE_VERSION = 'mi-presupuesto-v10';
 
 const APP_SHELL = [
   '/',
@@ -29,22 +29,16 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-
   const recurringId = event.notification.data?.recurringId;
   const shouldMarkPaid = event.action === 'mark-paid';
-  const targetUrl = shouldMarkPaid && recurringId
-    ? `/?paidRecurring=${encodeURIComponent(recurringId)}`
-    : '/';
-
+  const targetUrl = shouldMarkPaid && recurringId ? `/?paidRecurring=${encodeURIComponent(recurringId)}` : '/';
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(async (windowClients) => {
       const absoluteTarget = new URL(targetUrl, self.location.origin).href;
-
       for (const client of windowClients) {
         if ('navigate' in client) await client.navigate(absoluteTarget);
         if ('focus' in client) return client.focus();
       }
-
       return clients.openWindow(absoluteTarget);
     })
   );
@@ -55,7 +49,6 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
-
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request)
@@ -68,9 +61,7 @@ self.addEventListener('fetch', (event) => {
     );
     return;
   }
-
   if (url.pathname.startsWith('/src/') || url.pathname.startsWith('/@vite/')) return;
-
   if (url.pathname.startsWith('/assets/') || url.pathname.startsWith('/icons/') || url.pathname === '/manifest.webmanifest') {
     event.respondWith(
       caches.match(request).then((cached) => {
