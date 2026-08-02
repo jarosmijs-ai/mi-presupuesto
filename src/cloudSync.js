@@ -169,6 +169,7 @@ export async function pushBackup() {
 
   if (error) throw error;
   localStorage.setItem(LAST_APPLIED_REMOTE_KEY, updatedAt);
+  localStorage.setItem(AUTO_SYNC_KEY, 'true');
   return updatedAt;
 }
 
@@ -178,18 +179,17 @@ export async function pullBackup() {
 
   restoreLocalData(data.payload);
   localStorage.setItem(LAST_APPLIED_REMOTE_KEY, data.updated_at || new Date().toISOString());
+  localStorage.setItem(AUTO_SYNC_KEY, 'true');
   return data.updated_at;
 }
 
 export async function enableAutoSyncUsingLocalData() {
   await pushBackup();
-  localStorage.setItem(AUTO_SYNC_KEY, 'true');
   return true;
 }
 
 export async function enableAutoSyncUsingCloudData() {
   await pullBackup();
-  localStorage.setItem(AUTO_SYNC_KEY, 'true');
   return true;
 }
 
