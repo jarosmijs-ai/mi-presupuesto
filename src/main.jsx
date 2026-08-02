@@ -15,6 +15,7 @@ import IncomeUsageCard from './IncomeUsageCard.jsx';
 import LoanSafetyAdvisor from './LoanSafetyAdvisor.jsx';
 import CreditDecisionCenter from './CreditDecisionCenter.jsx';
 import BiometricSettings from './BiometricSettings.jsx';
+import FinancialDataBridge from './FinancialDataBridge.jsx';
 import './styles.css';
 import './premium.css';
 import './advanced-finance.css';
@@ -37,6 +38,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ErrorBoundary>
       <SecurityGate>
+        <FinancialDataBridge />
         <App />
         <AdvancedFinanceHub />
         <ProductCenter />
