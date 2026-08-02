@@ -31,6 +31,7 @@ import './credit-decision-center.css';
 import './compact-summary.css';
 import './minimal-shell.css';
 import './primary-biometric.css';
+import './sunset-palette.css';
 
 import { registerServiceWorker } from './registerServiceWorker';
 
