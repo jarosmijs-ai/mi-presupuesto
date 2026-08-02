@@ -12,6 +12,7 @@
     "@amcharts/amcharts5": "latest",
     "@supabase/supabase-js": "latest",
     "@vitejs/plugin-react": "latest",
+    "jspdf": "latest",
     "lucide-react": "latest",
     "react": "latest",
     "react-dom": "latest",
