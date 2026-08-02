@@ -1,8 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { jsPDF } from 'jspdf';
 import { cloudConfigured, getSession, pullBackup, pushBackup, signIn, signOut, signUp } from './cloudSync';
 import { hasPin, removePin, savePin } from './SecurityGate';
 
 const SETTINGS_KEY = 'app-settings';
+const SELECTED_MONTH_KEY = 'ux-selected-month';
 
 function loadSettings() {
   try {
@@ -22,16 +24,41 @@ function downloadFile(name, content, type) {
   const link = document.createElement('a');
   link.href = url;
   link.download = name;
+  document.body.appendChild(link);
   link.click();
-  URL.revokeObjectURL(url);
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 function safeParse(key) {
   try {
-    return JSON.parse(localStorage.getItem(key)) || [];
+    const value = JSON.parse(localStorage.getItem(key));
+    return Array.isArray(value) ? value : [];
   } catch {
     return [];
   }
+}
+
+function getIncomes() {
+  const primary = safeParse('monthly-incomes');
+  return primary.length ? primary : safeParse('incomes');
+}
+
+function selectedMonth() {
+  return localStorage.getItem(SELECTED_MONTH_KEY) || new Date().toISOString().slice(0, 7);
+}
+
+function monthLabel(month) {
+  const [year, monthNumber] = month.split('-').map(Number);
+  return new Intl.DateTimeFormat('es-GT', { month: 'long', year: 'numeric' })
+    .format(new Date(year, monthNumber - 1, 1));
+}
+
+function currency(value) {
+  return `Q ${Number(value || 0).toLocaleString('es-GT', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  })}`;
 }
 
 function csvEscape(value) {
@@ -43,8 +70,8 @@ function exportCsv() {
   const expenses = safeParse('expenses').map((item) => ({
     tipo: 'Gasto', fecha: item.date, categoria: item.category, descripcion: item.note, monto: item.amount
   }));
-  const incomes = safeParse('incomes').map((item) => ({
-    tipo: 'Ingreso', fecha: item.date, categoria: item.source || 'Ingreso', descripcion: item.note, monto: item.amount
+  const incomes = getIncomes().map((item) => ({
+    tipo: 'Ingreso', fecha: item.date, categoria: item.source || item.type || 'Ingreso', descripcion: item.note, monto: item.amount
   }));
   const rows = [...expenses, ...incomes].sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)));
   const header = ['Tipo', 'Fecha', 'Categoría', 'Descripción', 'Monto'];
@@ -54,15 +81,150 @@ function exportCsv() {
   downloadFile(`mi-presupuesto-${new Date().toISOString().slice(0, 10)}.csv`, `\uFEFF${csv}`, 'text/csv;charset=utf-8');
 }
 
-function printReport() {
-  const expenses = safeParse('expenses');
-  const incomes = safeParse('incomes');
+function generatePdfReport() {
+  const month = selectedMonth();
+  const expenses = safeParse('expenses').filter((item) => String(item.date || '').startsWith(month));
+  const incomes = getIncomes().filter((item) => String(item.date || '').startsWith(month));
   const totalExpenses = expenses.reduce((sum, item) => sum + Number(item.amount || 0), 0);
   const totalIncomes = incomes.reduce((sum, item) => sum + Number(item.amount || 0), 0);
-  const popup = window.open('', '_blank', 'noopener,noreferrer');
-  if (!popup) return;
-  popup.document.write(`<!doctype html><html><head><title>Reporte Mi Presupuesto</title><style>body{font-family:Arial;padding:40px;color:#14213d}h1{margin-bottom:6px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:30px 0}.card{border:1px solid #ddd;border-radius:14px;padding:18px}.label{color:#667085;font-size:12px;text-transform:uppercase}.value{font-size:24px;font-weight:700;margin-top:8px}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:10px;border-bottom:1px solid #eee}th{font-size:12px;text-transform:uppercase;color:#667085}@media print{button{display:none}}</style></head><body><h1>Mi Presupuesto</h1><p>Reporte generado el ${new Date().toLocaleDateString('es-GT')}</p><div class="grid"><div class="card"><div class="label">Ingresos</div><div class="value">Q ${totalIncomes.toFixed(2)}</div></div><div class="card"><div class="label">Gastos</div><div class="value">Q ${totalExpenses.toFixed(2)}</div></div><div class="card"><div class="label">Balance</div><div class="value">Q ${(totalIncomes-totalExpenses).toFixed(2)}</div></div></div><h2>Movimientos</h2><table><thead><tr><th>Fecha</th><th>Tipo</th><th>Detalle</th><th>Monto</th></tr></thead><tbody>${[...incomes.map(i=>({...i,tipo:'Ingreso'})),...expenses.map(i=>({...i,tipo:'Gasto'}))].sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,200).map(item=>`<tr><td>${item.date||''}</td><td>${item.tipo}</td><td>${item.category||item.source||item.note||''}</td><td>Q ${Number(item.amount||0).toFixed(2)}</td></tr>`).join('')}</tbody></table><script>window.onload=()=>window.print()</script></body></html>`);
-  popup.document.close();
+  const balance = totalIncomes - totalExpenses;
+
+  const movements = [
+    ...incomes.map((item) => ({
+      date: item.date || '',
+      type: 'Ingreso',
+      detail: item.source || item.type || item.description || item.note || 'Ingreso',
+      amount: Number(item.amount || 0)
+    })),
+    ...expenses.map((item) => ({
+      date: item.date || '',
+      type: 'Gasto',
+      detail: item.category || item.note || 'Gasto',
+      amount: -Number(item.amount || 0)
+    }))
+  ].sort((a, b) => String(b.date).localeCompare(String(a.date)));
+
+  const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const margin = 14;
+  const contentWidth = pageWidth - margin * 2;
+
+  function addHeader() {
+    doc.setFillColor(53, 92, 125);
+    doc.rect(0, 0, pageWidth, 34, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(20);
+    doc.text('Mi Presupuesto', margin, 15);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.text(`Reporte de ${monthLabel(month)}`, margin, 23);
+    doc.text(`Generado: ${new Date().toLocaleDateString('es-GT')}`, pageWidth - margin, 23, { align: 'right' });
+    doc.setTextColor(35, 54, 74);
+  }
+
+  function addPage() {
+    doc.addPage();
+    addHeader();
+    return 44;
+  }
+
+  addHeader();
+  let y = 44;
+  const cardGap = 4;
+  const cardWidth = (contentWidth - cardGap * 2) / 3;
+  const cards = [
+    { label: 'Ingresos', value: currency(totalIncomes), color: [53, 92, 125] },
+    { label: 'Gastos', value: currency(totalExpenses), color: [246, 114, 128] },
+    { label: 'Balance', value: currency(balance), color: balance < 0 ? [246, 114, 128] : [108, 91, 123] }
+  ];
+
+  cards.forEach((card, index) => {
+    const x = margin + index * (cardWidth + cardGap);
+    doc.setFillColor(248, 242, 239);
+    doc.setDrawColor(220, 207, 210);
+    doc.roundedRect(x, y, cardWidth, 25, 3, 3, 'FD');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(108, 91, 123);
+    doc.text(card.label.toUpperCase(), x + 4, y + 7);
+    doc.setFontSize(12);
+    doc.setTextColor(...card.color);
+    const valueLines = doc.splitTextToSize(card.value, cardWidth - 8);
+    doc.text(valueLines, x + 4, y + 16);
+  });
+
+  y += 36;
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(14);
+  doc.setTextColor(53, 92, 125);
+  doc.text('Movimientos del mes', margin, y);
+  y += 7;
+
+  const columns = [
+    { title: 'Fecha', x: margin, width: 26 },
+    { title: 'Tipo', x: margin + 28, width: 24 },
+    { title: 'Detalle', x: margin + 54, width: 88 },
+    { title: 'Monto', x: pageWidth - margin - 35, width: 35 }
+  ];
+
+  function drawTableHeader() {
+    doc.setFillColor(108, 91, 123);
+    doc.rect(margin, y, contentWidth, 8, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    columns.forEach((column) => doc.text(column.title, column.x + 2, y + 5.3));
+    y += 8;
+  }
+
+  drawTableHeader();
+
+  if (!movements.length) {
+    doc.setTextColor(90, 100, 114);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.text('No hay movimientos registrados para este mes.', margin + 2, y + 10);
+  } else {
+    movements.slice(0, 500).forEach((movement, index) => {
+      const detailLines = doc.splitTextToSize(String(movement.detail), columns[2].width - 4);
+      const rowHeight = Math.max(9, detailLines.length * 4.2 + 3);
+
+      if (y + rowHeight > pageHeight - 14) {
+        y = addPage();
+        drawTableHeader();
+      }
+
+      if (index % 2 === 0) {
+        doc.setFillColor(252, 247, 246);
+        doc.rect(margin, y, contentWidth, rowHeight, 'F');
+      }
+
+      doc.setDrawColor(232, 224, 225);
+      doc.line(margin, y + rowHeight, pageWidth - margin, y + rowHeight);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8.5);
+      doc.setTextColor(35, 54, 74);
+      doc.text(String(movement.date), columns[0].x + 2, y + 5.5);
+      doc.text(movement.type, columns[1].x + 2, y + 5.5);
+      doc.text(detailLines, columns[2].x + 2, y + 5.5);
+      doc.setTextColor(movement.amount < 0 ? 246 : 53, movement.amount < 0 ? 114 : 92, movement.amount < 0 ? 128 : 125);
+      doc.text(currency(Math.abs(movement.amount)), pageWidth - margin - 2, y + 5.5, { align: 'right' });
+      y += rowHeight;
+    });
+  }
+
+  const pageCount = doc.getNumberOfPages();
+  for (let page = 1; page <= pageCount; page += 1) {
+    doc.setPage(page);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(108, 91, 123);
+    doc.text(`Página ${page} de ${pageCount}`, pageWidth - margin, pageHeight - 7, { align: 'right' });
+  }
+
+  doc.save(`mi-presupuesto-${month}.pdf`);
 }
 
 function notifyDuePayments() {
@@ -157,8 +319,8 @@ export default function ProductCenter() {
               </section>
 
               <section className="product-setting-card product-stack">
-                <div><h3>Exportar y reportar</h3><p>Descarga tus movimientos o genera un reporte imprimible.</p></div>
-                <div className="product-action-row"><button onClick={exportCsv}>Exportar CSV</button><button onClick={printReport}>Reporte PDF</button><button onClick={requestNotifications}>Recordatorios</button></div>
+                <div><h3>Exportar y reportar</h3><p>Descarga tus movimientos en CSV o como un PDF real del mes seleccionado.</p></div>
+                <div className="product-action-row"><button disabled={busy} onClick={exportCsv}>Exportar CSV</button><button disabled={busy} onClick={() => run(generatePdfReport, 'Reporte PDF descargado.')}>{busy ? 'Generando…' : 'Descargar PDF'}</button><button disabled={busy} onClick={requestNotifications}>Recordatorios</button></div>
               </section>
 
               <section className="product-setting-card product-stack">
