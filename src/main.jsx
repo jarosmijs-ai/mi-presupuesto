@@ -16,6 +16,7 @@ import LoanSafetyAdvisor from './LoanSafetyAdvisor.jsx';
 import CreditDecisionCenter from './CreditDecisionCenter.jsx';
 import BiometricSettings from './BiometricSettings.jsx';
 import FinancialDataBridge from './FinancialDataBridge.jsx';
+import AutoCloudSync from './AutoCloudSync.jsx';
 import './styles.css';
 import './premium.css';
 import './advanced-finance.css';
@@ -40,6 +41,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <ErrorBoundary>
       <SecurityGate>
         <FinancialDataBridge />
+        <AutoCloudSync />
         <App />
         <AdvancedFinanceHub />
         <ProductCenter />
