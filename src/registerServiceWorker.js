@@ -3,26 +3,21 @@ export function registerServiceWorker() {
 
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('/sw.js');
+      const registration = await navigator.serviceWorker.register('/sw.js', {
+        updateViaCache: 'none'
+      });
 
-      function announceUpdate() {
-        if (!registration.waiting) return;
-        window.dispatchEvent(
-          new CustomEvent('budget-app-update', {
-            detail: registration
-          })
-        );
+      if (registration.waiting) {
+        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
       }
-
-      if (registration.waiting) announceUpdate();
 
       registration.addEventListener('updatefound', () => {
         const worker = registration.installing;
         if (!worker) return;
 
         worker.addEventListener('statechange', () => {
-          if (worker.state === 'installed' && navigator.serviceWorker.controller) {
-            announceUpdate();
+          if (worker.state === 'installed') {
+            worker.postMessage({ type: 'SKIP_WAITING' });
           }
         });
       });
@@ -34,7 +29,7 @@ export function registerServiceWorker() {
         window.location.reload();
       });
 
-      registration.update();
+      await registration.update();
     } catch (error) {
       console.error('No se pudo registrar el service worker:', error);
     }
