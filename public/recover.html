@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+  <title>Reparando Mi Presupuesto</title>
+  <style>
+    :root{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#24364b;background:#f8f3f1}
+    body{min-height:100vh;margin:0;display:grid;place-items:center;padding:24px}
+    main{width:min(420px,100%);padding:28px;border-radius:24px;background:#fff;box-shadow:0 20px 60px rgba(53,92,125,.16);text-align:center}
+    .logo{width:56px;height:56px;margin:0 auto 18px;border-radius:18px;display:grid;place-items:center;background:#355c7d;color:#fff;font-weight:900;font-size:22px}
+    h1{margin:0 0 10px;font-size:24px}p{margin:0;color:#6c5b7b;line-height:1.5}.status{margin-top:18px;padding:12px;border-radius:14px;background:#f8e7e2;font-weight:800;color:#355c7d}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="logo">Q</div>
+    <h1>Reparando la aplicación</h1>
+    <p>Se eliminarán únicamente archivos temporales de la PWA. Tus ingresos, gastos, PIN y configuraciones locales permanecerán intactos.</p>
+    <div class="status" id="status">Preparando versión limpia…</div>
+  </main>
+  <script>
+    (async () => {
+      const status = document.getElementById('status');
+      try {
+        if ('serviceWorker' in navigator) {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(registrations.map((registration) => registration.unregister()));
+        }
+        if ('caches' in window) {
+          const keys = await caches.keys();
+          await Promise.all(keys.map((key) => caches.delete(key)));
+        }
+        sessionStorage.removeItem('app-session-unlocked');
+        status.textContent = 'Listo. Abriendo la versión reparada…';
+        window.setTimeout(() => {
+          window.location.replace('/?recovered=' + Date.now());
+        }, 900);
+      } catch (error) {
+        status.textContent = 'No se pudo completar automáticamente. Recarga esta página una vez.';
+        console.error(error);
+      }
+    })();
+  </script>
+</body>
+</html>
