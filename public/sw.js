@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'mi-presupuesto-v29';
+const CACHE_VERSION = 'mi-presupuesto-v30';
 
 const APP_SHELL = [
   '/',
@@ -54,6 +54,11 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
+
+  if (url.pathname === '/recover.html') {
+    event.respondWith(fetch(request, { cache: 'no-store' }));
+    return;
+  }
 
   if (request.mode === 'navigate') {
     event.respondWith(
