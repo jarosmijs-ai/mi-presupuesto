@@ -17,6 +17,7 @@ import CreditDecisionCenter from './CreditDecisionCenter.jsx';
 import BiometricSettings from './BiometricSettings.jsx';
 import FinancialDataBridge from './FinancialDataBridge.jsx';
 import AutoCloudSync from './AutoCloudSync.jsx';
+import SettingsEnhancements from './SettingsEnhancements.jsx';
 import './styles.css';
 import './premium.css';
 import './advanced-finance.css';
@@ -33,6 +34,7 @@ import './compact-summary.css';
 import './minimal-shell.css';
 import './primary-biometric.css';
 import './sunset-palette.css';
+import './settings-enhancements.css';
 
 import { registerServiceWorker } from './registerServiceWorker';
 
@@ -46,6 +48,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <AdvancedFinanceHub />
         <ProductCenter />
         <BiometricSettings />
+        <SettingsEnhancements />
         <UXConsolidation />
         <IncomeAverageCard />
         <HistoryBaselineGuard />
