@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'mi-presupuesto-v26';
+const CACHE_VERSION = 'mi-presupuesto-v27';
 
 const APP_SHELL = [
   '/',
@@ -11,7 +11,12 @@ const APP_SHELL = [
 ];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE_VERSION).then((cache) => cache.addAll(APP_SHELL)));
+  event.waitUntil(
+    caches
+      .open(CACHE_VERSION)
+      .then((cache) => cache.addAll(APP_SHELL))
+      .then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener('message', (event) => {
@@ -49,9 +54,10 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
+
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request)
+      fetch(request, { cache: 'no-store' })
         .then((response) => {
           const copy = response.clone();
           caches.open(CACHE_VERSION).then((cache) => cache.put('/index.html', copy));
@@ -61,8 +67,15 @@ self.addEventListener('fetch', (event) => {
     );
     return;
   }
+
+  if (url.pathname.startsWith('/assets/')) {
+    event.respondWith(fetch(request, { cache: 'no-store' }).catch(() => caches.match(request)));
+    return;
+  }
+
   if (url.pathname.startsWith('/src/') || url.pathname.startsWith('/@vite/')) return;
-  if (url.pathname.startsWith('/assets/') || url.pathname.startsWith('/icons/') || url.pathname === '/manifest.webmanifest') {
+
+  if (url.pathname.startsWith('/icons/') || url.pathname === '/manifest.webmanifest') {
     event.respondWith(
       caches.match(request).then((cached) => {
         const networkRequest = fetch(request)
