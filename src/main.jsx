@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 
 import App from './App.jsx';
 import ErrorBoundary from './ErrorBoundary.jsx';
+import ComponentBoundary from './ComponentBoundary.jsx';
 import UpdatePrompt from './UpdatePrompt.jsx';
 import AdvancedFinanceHub from './AdvancedFinanceHub.jsx';
 import ProductCenter from './ProductCenter.jsx';
@@ -38,25 +39,29 @@ import './settings-enhancements.css';
 
 import { registerServiceWorker } from './registerServiceWorker';
 
+const Safe = ({ name, children }) => (
+  <ComponentBoundary name={name}>{children}</ComponentBoundary>
+);
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ErrorBoundary>
       <SecurityGate>
-        <FinancialDataBridge />
-        <AutoCloudSync />
-        <App />
-        <AdvancedFinanceHub />
-        <ProductCenter />
-        <BiometricSettings />
-        <SettingsEnhancements />
-        <UXConsolidation />
-        <IncomeAverageCard />
-        <HistoryBaselineGuard />
-        <FinancialInsightsDashboard />
-        <IncomeUsageCard />
-        <LoanSafetyAdvisor />
-        <CreditDecisionCenter />
-        <UpdatePrompt />
+        <Safe name="Puente de datos"><FinancialDataBridge /></Safe>
+        <Safe name="Sincronización automática"><AutoCloudSync /></Safe>
+        <ComponentBoundary name="Aplicación principal" fallback={null}><App /></ComponentBoundary>
+        <Safe name="Planificación financiera"><AdvancedFinanceHub /></Safe>
+        <Safe name="Configuración"><ProductCenter /></Safe>
+        <Safe name="Biometría"><BiometricSettings /></Safe>
+        <Safe name="Mejoras de configuración"><SettingsEnhancements /></Safe>
+        <Safe name="Consolidación de interfaz"><UXConsolidation /></Safe>
+        <Safe name="Promedio de ingresos"><IncomeAverageCard /></Safe>
+        <Safe name="Historial"><HistoryBaselineGuard /></Safe>
+        <Safe name="Análisis financiero"><FinancialInsightsDashboard /></Safe>
+        <Safe name="Uso de ingresos"><IncomeUsageCard /></Safe>
+        <Safe name="Asesor de préstamos"><LoanSafetyAdvisor /></Safe>
+        <Safe name="Centro de crédito"><CreditDecisionCenter /></Safe>
+        <Safe name="Actualizaciones"><UpdatePrompt /></Safe>
       </SecurityGate>
     </ErrorBoundary>
   </React.StrictMode>
