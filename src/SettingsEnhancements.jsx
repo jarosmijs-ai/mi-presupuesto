@@ -1,10 +1,11 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { hasPin, removePin, savePin } from './SecurityGate';
 
 const RECURRING_KEY = 'premium-recurring-expenses';
 const EXPENSE_KEY = 'expenses';
 const SELECTED_MONTH_KEY = 'ux-selected-month';
+const NOTICE_KEY = 'recurring-reminder-last-date';
 
 function loadArray(key) {
   try {
@@ -27,6 +28,11 @@ function selectedMonth() {
 function currentMonthKey() {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function localDateKey() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 }
 
 function paymentDate(month, day) {
@@ -56,15 +62,51 @@ function makeId() {
   return globalThis.crypto?.randomUUID?.() || `recurring-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
+async function showReminderNotification(attentionRows) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return false;
+  if (!attentionRows.length) return false;
+
+  const first = attentionRows[0]?.item;
+  const firstName = first?.name || first?.title || first?.description || 'Pago recurrente';
+  const extra = attentionRows.length - 1;
+  const body = extra > 0
+    ? `${firstName} y ${extra} pago${extra === 1 ? '' : 's'} más siguen sin marcarse como pagados.`
+    : `${firstName} sigue sin marcarse como pagado. Abre la app para confirmarlo.`;
+
+  const options = {
+    body,
+    icon: '/icons/icon-192.png',
+    badge: '/icons/icon-192.png',
+    tag: 'mi-presupuesto-recurring-reminder',
+    renotify: false,
+    data: { url: '/' }
+  };
+
+  try {
+    const registration = await navigator.serviceWorker?.ready;
+    if (registration?.showNotification) {
+      await registration.showNotification('¿Ya pagaste tus recurrentes?', options);
+    } else {
+      new Notification('¿Ya pagaste tus recurrentes?', options);
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export default function SettingsEnhancements() {
   const [open, setOpen] = useState(false);
   const [newPin, setNewPin] = useState('');
   const [confirmPin, setConfirmPin] = useState('');
   const [pinEnabled, setPinEnabled] = useState(hasPin());
   const [message, setMessage] = useState('');
-  const [month] = useState(selectedMonth);
+  const [month, setMonth] = useState(selectedMonth);
   const [recurring, setRecurring] = useState(() => loadArray(RECURRING_KEY));
   const [expenses, setExpenses] = useState(() => loadArray(EXPENSE_KEY));
+  const [notificationPermission, setNotificationPermission] = useState(() =>
+    'Notification' in window ? Notification.permission : 'unsupported'
+  );
 
   const paidIds = useMemo(() => new Set(
     expenses
@@ -73,6 +115,37 @@ export default function SettingsEnhancements() {
   ), [expenses, month]);
 
   const rows = useMemo(() => recurring.map((item) => ({ item, status: statusFor(item, month, paidIds) })), [recurring, month, paidIds]);
+  const attentionRows = useMemo(() => rows.filter(({ status }) => status.key === 'today' || status.key === 'overdue'), [rows]);
+
+  function refreshData() {
+    setMonth(selectedMonth());
+    setRecurring(loadArray(RECURRING_KEY));
+    setExpenses(loadArray(EXPENSE_KEY));
+    setPinEnabled(hasPin());
+    if ('Notification' in window) setNotificationPermission(Notification.permission);
+  }
+
+  useEffect(() => {
+    const refresh = () => refreshData();
+    window.addEventListener('focus', refresh);
+    window.addEventListener('storage', refresh);
+    window.addEventListener('budget-data-changed', refresh);
+    return () => {
+      window.removeEventListener('focus', refresh);
+      window.removeEventListener('storage', refresh);
+      window.removeEventListener('budget-data-changed', refresh);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (month !== currentMonthKey() || !attentionRows.length) return;
+    const today = localDateKey();
+    if (localStorage.getItem(NOTICE_KEY) === today) return;
+
+    showReminderNotification(attentionRows).then((shown) => {
+      if (shown) localStorage.setItem(NOTICE_KEY, today);
+    });
+  }, [attentionRows, month]);
 
   async function saveNewPin(event) {
     event.preventDefault();
@@ -103,25 +176,40 @@ export default function SettingsEnhancements() {
     }];
     saveArray(EXPENSE_KEY, next);
     setExpenses(next);
-    setMessage('Pago marcado como pagado y agregado a gastos.');
+    setMessage(`${item.name || item.title || 'Pago'} marcado como pagado y agregado a gastos.`);
   }
 
   function undoPaid(item) {
     const next = expenses.filter((expense) => !(String(expense.date || '').startsWith(month) && String(expense.recurringId || '') === String(item.id)));
     saveArray(EXPENSE_KEY, next);
     setExpenses(next);
-    setMessage('Pago deshecho.');
+    setMessage(`Se deshizo el pago de ${item.name || item.title || 'este recurrente'}.`);
   }
 
-  function refreshData() {
-    setRecurring(loadArray(RECURRING_KEY));
-    setExpenses(loadArray(EXPENSE_KEY));
-    setPinEnabled(hasPin());
+  async function enableNotifications() {
+    if (!('Notification' in window)) {
+      setMessage('Este dispositivo no admite notificaciones web.');
+      return;
+    }
+
+    const permission = await Notification.requestPermission();
+    setNotificationPermission(permission);
+    if (permission !== 'granted') {
+      setMessage('No se concedió permiso para enviar recordatorios.');
+      return;
+    }
+
+    setMessage('Recordatorios activados. La app te avisará al abrirla cuando haya pagos vencidos o que vencen hoy.');
+    const shown = await showReminderNotification(attentionRows);
+    if (shown) localStorage.setItem(NOTICE_KEY, localDateKey());
   }
 
   return (
     <>
-      <button type="button" className="quick-security-button" onClick={() => { refreshData(); setOpen(true); }} aria-label="Seguridad y pagos recurrentes">🔐</button>
+      <button type="button" className="quick-security-button" onClick={() => { refreshData(); setOpen(true); }} aria-label="Seguridad y pagos recurrentes">
+        🔐
+        {attentionRows.length > 0 && <span className="quick-security-badge">{attentionRows.length}</span>}
+      </button>
       {open && createPortal(
         <div className="quick-security-overlay" onMouseDown={(event) => event.target === event.currentTarget && setOpen(false)}>
           <section className="quick-security-panel" role="dialog" aria-modal="true" aria-label="Seguridad y pagos recurrentes">
@@ -136,14 +224,30 @@ export default function SettingsEnhancements() {
                 </form>
                 {pinEnabled && <button type="button" className="product-secondary" onClick={disablePin}>Desactivar PIN</button>}
               </section>
+
               <section className="product-setting-card product-stack">
-                <div><h3>Pagos recurrentes</h3><p>Marca pagos, deshaz errores y revisa el estado del mes.</p></div>
+                <div className="recurring-control-heading">
+                  <div>
+                    <h3>Pagos recurrentes</h3>
+                    <p>El estado Activo indica que el recordatorio existe. El estado de pago mensual aparece abajo.</p>
+                  </div>
+                  {notificationPermission !== 'granted' && notificationPermission !== 'unsupported' && (
+                    <button type="button" className="product-secondary" onClick={enableNotifications}>Activar avisos</button>
+                  )}
+                  {notificationPermission === 'granted' && <span className="notification-enabled">Avisos activos</span>}
+                </div>
+
                 <div className="recurring-control-list">
                   {rows.length ? rows.map(({ item, status }) => (
                     <article key={item.id} className={`recurring-control-row is-${status.key}`}>
-                      <div><strong>{item.name || item.title || item.description || 'Pago recurrente'}</strong><small>Día {Number(item.day || 1)} · {money(item.amount)}</small></div>
+                      <div>
+                        <strong>{item.name || item.title || item.description || 'Pago recurrente'}</strong>
+                        <small>Día {Number(item.day || 1)} · {money(item.amount)}</small>
+                      </div>
                       <span className={`recurring-status is-${status.key}`}>{status.label}</span>
-                      {status.key === 'paid' ? <button type="button" className="product-secondary" onClick={() => undoPaid(item)}>Deshacer</button> : item.active && <button type="button" onClick={() => markPaid(item)}>Marcar pagado</button>}
+                      {status.key === 'paid'
+                        ? <button type="button" className="product-secondary" onClick={() => undoPaid(item)}>Deshacer pago</button>
+                        : item.active && <button type="button" onClick={() => markPaid(item)}>Marcar pagado</button>}
                     </article>
                   )) : <p className="recurring-empty">Todavía no hay gastos recurrentes configurados.</p>}
                 </div>
