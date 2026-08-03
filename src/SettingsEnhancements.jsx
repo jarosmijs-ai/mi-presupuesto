@@ -47,8 +47,8 @@ function money(value) {
 function recurringStatus(item, month, paidIds) {
   if (!item.active) return { key: 'paused', label: 'Pausado' };
   if (paidIds.has(String(item.id))) return { key: 'paid', label: 'Pagado' };
-
   if (month !== currentMonthKey()) return { key: 'pending', label: 'Pendiente' };
+
   const today = new Date().getDate();
   const dueDay = Number(item.day || 1);
   if (dueDay < today) return { key: 'overdue', label: 'Vencido' };
@@ -73,39 +73,40 @@ export default function SettingsEnhancements() {
   );
 
   useEffect(() => {
-    let frame = 0;
-    const refresh = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
-        setTarget(document.querySelector('.product-panel-body'));
-        setMonth(selectedMonth());
-        setRecurring(loadArray(RECURRING_KEY));
-        setExpenses(loadArray(EXPENSE_KEY));
-      });
-    };
+    function findTarget() {
+      const nextTarget = document.querySelector('.product-panel-body');
+      setTarget((current) => current === nextTarget ? current : nextTarget);
+    }
 
-    refresh();
-    const observer = new MutationObserver(refresh);
+    findTarget();
+    const observer = new MutationObserver(findTarget);
     observer.observe(document.body, { childList: true, subtree: true });
-    window.addEventListener('budget-data-changed', refresh);
-    window.addEventListener('storage', refresh);
-    window.addEventListener('focus', refresh);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    function refreshData() {
+      setMonth(selectedMonth());
+      setRecurring(loadArray(RECURRING_KEY));
+      setExpenses(loadArray(EXPENSE_KEY));
+    }
+
+    refreshData();
+    window.addEventListener('budget-data-changed', refreshData);
+    window.addEventListener('storage', refreshData);
+    window.addEventListener('focus', refreshData);
     return () => {
-      cancelAnimationFrame(frame);
-      observer.disconnect();
-      window.removeEventListener('budget-data-changed', refresh);
-      window.removeEventListener('storage', refresh);
-      window.removeEventListener('focus', refresh);
+      window.removeEventListener('budget-data-changed', refreshData);
+      window.removeEventListener('storage', refreshData);
+      window.removeEventListener('focus', refreshData);
     };
   }, []);
 
-  const paidIds = useMemo(() => {
-    return new Set(
-      expenses
-        .filter((item) => String(item.date || '').startsWith(month) && item.recurringId)
-        .map((item) => String(item.recurringId))
-    );
-  }, [expenses, month]);
+  const paidIds = useMemo(() => new Set(
+    expenses
+      .filter((item) => String(item.date || '').startsWith(month) && item.recurringId)
+      .map((item) => String(item.recurringId))
+  ), [expenses, month]);
 
   const activeRows = useMemo(() => recurring.map((item) => ({
     item,
@@ -130,13 +131,15 @@ export default function SettingsEnhancements() {
       });
       localStorage.setItem(NOTICE_KEY, todayKey);
     } catch {
-      // Android puede bloquear notificaciones directas en algunos modos PWA.
+      // Algunos navegadores Android solo permiten notificaciones mediante push.
     }
   }, [activeRows, month]);
 
   async function changePin(event) {
     event.preventDefault();
     setMessage('');
+    const pinAlreadyExisted = hasPin();
+
     if (newPin.length < 4 || newPin.length > 8) {
       setMessage('El PIN debe tener entre 4 y 8 dígitos.');
       return;
@@ -145,16 +148,18 @@ export default function SettingsEnhancements() {
       setMessage('Los PIN no coinciden.');
       return;
     }
+
     await savePin(newPin);
     setNewPin('');
     setConfirmPin('');
-    setMessage(hasPin() ? 'PIN actualizado correctamente.' : 'PIN activado correctamente.');
+    setMessage(pinAlreadyExisted ? 'PIN actualizado correctamente.' : 'PIN activado correctamente.');
   }
 
   function markPaid(item) {
     const existing = expenses.some((expense) =>
       String(expense.date || '').startsWith(month) && String(expense.recurringId || '') === String(item.id)
     );
+
     if (existing) {
       setMessage(`${item.name || item.title || 'El pago'} ya está marcado como pagado.`);
       return;
@@ -172,6 +177,7 @@ export default function SettingsEnhancements() {
         createdAt: new Date().toISOString()
       }
     ];
+
     saveArray(EXPENSE_KEY, next);
     setExpenses(next);
     setMessage(`${item.name || item.title || 'Pago'} marcado como pagado y agregado a gastos.`);
@@ -181,6 +187,7 @@ export default function SettingsEnhancements() {
     const next = expenses.filter((expense) => !(
       String(expense.date || '').startsWith(month) && String(expense.recurringId || '') === String(item.id)
     ));
+
     saveArray(EXPENSE_KEY, next);
     setExpenses(next);
     setMessage(`Se deshizo el pago de ${item.name || item.title || 'este recurrente'}.`);
@@ -191,6 +198,7 @@ export default function SettingsEnhancements() {
       setMessage('Este dispositivo no admite notificaciones web.');
       return;
     }
+
     const permission = await Notification.requestPermission();
     setNotificationPermission(permission);
     setMessage(permission === 'granted'
@@ -198,7 +206,7 @@ export default function SettingsEnhancements() {
       : 'No se concedió permiso para notificaciones.');
   }
 
-  if (!target) return null;
+  if (!target || !target.isConnected) return null;
 
   return createPortal(
     <>
