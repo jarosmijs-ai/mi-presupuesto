@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'mi-presupuesto-v32';
+const CACHE_VERSION = 'mi-presupuesto-v33';
 
 const APP_SHELL = [
   '/',
@@ -34,9 +34,7 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const recurringId = event.notification.data?.recurringId;
-  const shouldMarkPaid = event.action === 'mark-paid';
-  const targetUrl = shouldMarkPaid && recurringId ? `/?paidRecurring=${encodeURIComponent(recurringId)}` : '/';
+  const targetUrl = event.notification.data?.url || '/';
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(async (windowClients) => {
       const absoluteTarget = new URL(targetUrl, self.location.origin).href;
