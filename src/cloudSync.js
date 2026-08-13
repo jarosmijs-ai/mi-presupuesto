@@ -33,7 +33,9 @@ export const STORAGE_KEYS = [
   'app-settings',
   'ux-selected-month',
   'financial-history-baseline',
-  'loan-calculator-state'
+  'loan-calculator-state',
+  'loan-settings',
+  'loan-capital-payments'
 ];
 
 function createId() {
