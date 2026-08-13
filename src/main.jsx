@@ -14,6 +14,7 @@ import HistoryBaselineGuard from './HistoryBaselineGuard.jsx';
 import FinancialInsightsDashboard from './FinancialInsightsDashboard.jsx';
 import IncomeUsageCard from './IncomeUsageCard.jsx';
 import LoanSafetyAdvisor from './LoanSafetyAdvisor.jsx';
+import LoanCapitalTracker from './LoanCapitalTracker.jsx';
 import CreditDecisionCenter from './CreditDecisionCenter.jsx';
 import BiometricSettings from './BiometricSettings.jsx';
 import FinancialDataBridge from './FinancialDataBridge.jsx';
@@ -29,6 +30,7 @@ import './history-baseline.css';
 import './financial-insights.css';
 import './income-usage.css';
 import './loan-safety-advisor.css';
+import './loan-capital-tracker.css';
 import './visual-polish.css';
 import './credit-decision-center.css';
 import './compact-summary.css';
@@ -60,6 +62,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Safe name="Análisis financiero"><FinancialInsightsDashboard /></Safe>
         <Safe name="Uso de ingresos"><IncomeUsageCard /></Safe>
         <Safe name="Asesor de préstamos"><LoanSafetyAdvisor /></Safe>
+        <Safe name="Abonos reales a capital"><LoanCapitalTracker /></Safe>
         <Safe name="Centro de crédito"><CreditDecisionCenter /></Safe>
         <Safe name="Actualizaciones"><UpdatePrompt /></Safe>
       </SecurityGate>
