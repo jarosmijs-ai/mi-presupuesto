@@ -20,6 +20,7 @@ import BiometricSettings from './BiometricSettings.jsx';
 import FinancialDataBridge from './FinancialDataBridge.jsx';
 import AutoCloudSync from './AutoCloudSync.jsx';
 import SettingsEnhancements from './SettingsEnhancements.jsx';
+import FinancialIntegrityLayer from './FinancialIntegrityLayer.jsx';
 import './styles.css';
 import './premium.css';
 import './advanced-finance.css';
@@ -38,6 +39,7 @@ import './minimal-shell.css';
 import './primary-biometric.css';
 import './sunset-palette.css';
 import './settings-enhancements.css';
+import './financial-integrity.css';
 
 import { registerServiceWorker } from './registerServiceWorker';
 
@@ -49,6 +51,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ErrorBoundary>
       <SecurityGate>
+        <Safe name="Integridad financiera"><FinancialIntegrityLayer /></Safe>
         <Safe name="Puente de datos"><FinancialDataBridge /></Safe>
         <Safe name="Sincronización automática"><AutoCloudSync /></Safe>
         <ComponentBoundary name="Aplicación principal" fallback={null}><App /></ComponentBoundary>
