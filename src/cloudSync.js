@@ -27,11 +27,13 @@ export const STORAGE_KEYS = [
   'monthly-incomes',
   'budgets',
   'monthlyBudgets',
+  'monthly-budgets',
   'premium-recurring-expenses',
   'premium-savings-goals',
   'premium-onboarding-complete',
   'app-settings',
   'ux-selected-month',
+  'closed-months',
   'financial-history-baseline',
   'loan-calculator-state',
   'loan-settings',
@@ -61,7 +63,7 @@ export function markLocalChange() {
 export function hasMeaningfulLocalData() {
   const expenses = localStorage.getItem('expenses');
   const incomes = localStorage.getItem('monthly-incomes') || localStorage.getItem('incomes');
-  const budgets = localStorage.getItem('monthlyBudgets') || localStorage.getItem('budgets');
+  const budgets = localStorage.getItem('monthly-budgets') || localStorage.getItem('monthlyBudgets') || localStorage.getItem('budgets');
 
   return [expenses, incomes, budgets].some((raw) => {
     if (!raw) return false;
@@ -86,17 +88,23 @@ export function collectLocalData() {
   payload.__sync = {
     deviceId: getDeviceId(),
     savedAt: new Date().toISOString(),
-    version: 2
+    version: 3
   };
 
   return payload;
 }
 
 export function restoreLocalData(payload = {}) {
-  for (const [key, value] of Object.entries(payload)) {
-    if (STORAGE_KEYS.includes(key) && typeof value === 'string') {
-      localStorage.setItem(key, value);
+  const previousBypass = Boolean(window.__MI_PRESUPUESTO_STORAGE_BYPASS__);
+  window.__MI_PRESUPUESTO_STORAGE_BYPASS__ = true;
+  try {
+    for (const [key, value] of Object.entries(payload)) {
+      if (STORAGE_KEYS.includes(key) && typeof value === 'string') {
+        localStorage.setItem(key, value);
+      }
     }
+  } finally {
+    window.__MI_PRESUPUESTO_STORAGE_BYPASS__ = previousBypass;
   }
 }
 
