@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'mi-presupuesto-v41';
+const CACHE_VERSION = 'mi-presupuesto-v42-liquid-glass';
 
 const APP_SHELL = [
   '/',
