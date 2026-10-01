@@ -23,7 +23,7 @@ import SettingsEnhancements from './SettingsEnhancements.jsx';
 import FinancialIntegrityLayer from './FinancialIntegrityLayer.jsx';
 import RecurringPaymentNormalizer from './RecurringPaymentNormalizer.jsx';
 import QuickPaymentsPanel from './QuickPaymentsPanel.jsx';
-import InlineScheduledPayments from './InlineScheduledPayments.jsx';
+import BudgetCategoryPaymentControls from './BudgetCategoryPaymentControls.jsx';
 import './styles.css';
 import './premium.css';
 import './advanced-finance.css';
@@ -44,6 +44,7 @@ import './sunset-palette.css';
 import './settings-enhancements.css';
 import './financial-integrity.css';
 import './quick-payments.css';
+import './budget-category-payments.css';
 
 import { registerServiceWorker } from './registerServiceWorker';
 
@@ -66,7 +67,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Safe name="Mejoras de configuración"><SettingsEnhancements /></Safe>
         <Safe name="Consolidación de interfaz"><UXConsolidation /></Safe>
         <Safe name="Pagos programados"><QuickPaymentsPanel /></Safe>
-        <Safe name="Pagos visibles en gastos"><InlineScheduledPayments /></Safe>
+        <Safe name="Pagos por categoría"><BudgetCategoryPaymentControls /></Safe>
         <Safe name="Promedio de ingresos"><IncomeAverageCard /></Safe>
         <Safe name="Historial"><HistoryBaselineGuard /></Safe>
         <Safe name="Análisis financiero"><FinancialInsightsDashboard /></Safe>
