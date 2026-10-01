@@ -23,6 +23,7 @@ import SettingsEnhancements from './SettingsEnhancements.jsx';
 import FinancialIntegrityLayer from './FinancialIntegrityLayer.jsx';
 import RecurringPaymentNormalizer from './RecurringPaymentNormalizer.jsx';
 import QuickPaymentsPanel from './QuickPaymentsPanel.jsx';
+import InlineScheduledPayments from './InlineScheduledPayments.jsx';
 import './styles.css';
 import './premium.css';
 import './advanced-finance.css';
@@ -65,6 +66,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Safe name="Mejoras de configuración"><SettingsEnhancements /></Safe>
         <Safe name="Consolidación de interfaz"><UXConsolidation /></Safe>
         <Safe name="Pagos programados"><QuickPaymentsPanel /></Safe>
+        <Safe name="Pagos visibles en gastos"><InlineScheduledPayments /></Safe>
         <Safe name="Promedio de ingresos"><IncomeAverageCard /></Safe>
         <Safe name="Historial"><HistoryBaselineGuard /></Safe>
         <Safe name="Análisis financiero"><FinancialInsightsDashboard /></Safe>
