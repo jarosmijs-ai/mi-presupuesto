@@ -1,0 +1,257 @@
+.ux-sheet > .ux-reminders {
+  display: none !important;
+}
+
+#quick-payments-host {
+  display: block;
+  width: 100%;
+}
+
+.smart-payments-card {
+  margin: 0 0 16px;
+  padding: 16px;
+  border: 1px solid rgba(108, 91, 123, 0.18);
+  border-radius: 20px;
+  background: linear-gradient(145deg, rgba(255,255,255,0.96), rgba(248,242,239,0.94));
+  box-shadow: 0 12px 34px rgba(53, 92, 125, 0.09);
+}
+
+.smart-payments-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.smart-payments-heading > div:first-child > span,
+.smart-payments-total > span,
+.smart-payments-divider span {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #6c5b7b;
+}
+
+.smart-payments-heading h3 {
+  margin: 4px 0 3px;
+  font-size: 1rem;
+  color: #355c7d;
+}
+
+.smart-payments-heading small {
+  color: rgba(53, 92, 125, 0.68);
+}
+
+.smart-payments-total {
+  flex: 0 0 auto;
+  text-align: right;
+}
+
+.smart-payments-total strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 1rem;
+  color: #c06c84;
+}
+
+.smart-payments-list {
+  display: grid;
+  gap: 9px;
+}
+
+.smart-payment-row {
+  padding: 12px;
+  border: 1px solid rgba(53, 92, 125, 0.12);
+  border-radius: 15px;
+  background: rgba(255,255,255,0.78);
+}
+
+.smart-payment-row.is-paid {
+  opacity: 0.78;
+  background: rgba(248, 177, 149, 0.10);
+}
+
+.smart-payment-row.is-overdue {
+  border-color: rgba(246, 114, 128, 0.34);
+}
+
+.smart-payment-main,
+.smart-payment-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.smart-payment-main > div {
+  min-width: 0;
+}
+
+.smart-payment-main > div > strong {
+  display: block;
+  color: #355c7d;
+  line-height: 1.25;
+}
+
+.smart-payment-main small {
+  display: block;
+  margin-top: 3px;
+  color: rgba(53, 92, 125, 0.64);
+}
+
+.smart-payment-main > strong {
+  white-space: nowrap;
+  color: #355c7d;
+}
+
+.smart-payment-actions {
+  margin-top: 10px;
+}
+
+.smart-payment-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 9px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  background: rgba(108, 91, 123, 0.10);
+  color: #6c5b7b;
+}
+
+.smart-payment-status.is-paid {
+  background: rgba(53, 92, 125, 0.10);
+  color: #355c7d;
+}
+
+.smart-payment-status.is-overdue,
+.smart-payment-status.is-today {
+  background: rgba(246, 114, 128, 0.14);
+  color: #b94f61;
+}
+
+.smart-payment-confirm,
+.smart-payment-undo {
+  min-height: 38px;
+  padding: 0 13px;
+  border: 0;
+  border-radius: 12px;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.smart-payment-confirm {
+  background: #355c7d;
+  color: #fff;
+}
+
+.smart-payment-undo {
+  background: rgba(108, 91, 123, 0.10);
+  color: #6c5b7b;
+}
+
+.smart-payment-confirm:disabled,
+.smart-payment-undo:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.smart-loan-note,
+.smart-payments-empty,
+.smart-payments-closed,
+.smart-payment-message {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.smart-loan-note {
+  background: rgba(53, 92, 125, 0.07);
+  color: #355c7d;
+}
+
+.smart-payments-empty {
+  background: rgba(108, 91, 123, 0.06);
+  color: #6c5b7b;
+}
+
+.smart-payments-closed {
+  margin: 0 0 12px;
+  background: rgba(246, 114, 128, 0.10);
+  color: #a94b5d;
+}
+
+.smart-payment-message {
+  background: rgba(248, 177, 149, 0.16);
+  color: #6c5b7b;
+}
+
+.smart-payments-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 4px 0 12px;
+}
+
+.smart-payments-divider::before,
+.smart-payments-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(108, 91, 123, 0.14);
+}
+
+.smart-payments-divider span {
+  white-space: nowrap;
+  color: rgba(108, 91, 123, 0.72);
+}
+
+@media (max-width: 640px) {
+  .smart-payments-card {
+    margin-left: 0;
+    margin-right: 0;
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .smart-payments-heading {
+    align-items: flex-end;
+  }
+
+  .smart-payment-main {
+    align-items: flex-start;
+  }
+
+  .smart-payment-main > strong {
+    font-size: 0.9rem;
+  }
+
+  .smart-payment-confirm,
+  .smart-payment-undo {
+    min-height: 42px;
+  }
+}
+
+html[data-theme='dark'] .smart-payments-card,
+html[data-theme='dark'] .smart-payment-row {
+  background: rgba(31, 37, 48, 0.94);
+  border-color: rgba(255,255,255,0.10);
+}
+
+html[data-theme='dark'] .smart-payment-main > div > strong,
+html[data-theme='dark'] .smart-payment-main > strong,
+html[data-theme='dark'] .smart-payments-heading h3 {
+  color: #f5edf1;
+}
+
+html[data-theme='dark'] .smart-payment-main small,
+html[data-theme='dark'] .smart-payments-heading small {
+  color: rgba(245, 237, 241, 0.62);
+}
