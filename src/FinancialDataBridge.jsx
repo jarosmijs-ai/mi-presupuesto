@@ -12,13 +12,27 @@ function readArray(key) {
   }
 }
 
+function writeInternalStorage(key, value) {
+  const previousBypass = window.__MI_PRESUPUESTO_STORAGE_BYPASS__;
+  window.__MI_PRESUPUESTO_STORAGE_BYPASS__ = true;
+
+  try {
+    localStorage.setItem(key, value);
+  } finally {
+    window.__MI_PRESUPUESTO_STORAGE_BYPASS__ = previousBypass;
+  }
+}
+
 function syncIncomeKeys() {
   const primaryIncomes = readArray(PRIMARY_INCOME_KEY);
   const legacyRaw = localStorage.getItem(LEGACY_INCOME_KEY);
   const nextRaw = JSON.stringify(primaryIncomes);
 
   if (legacyRaw !== nextRaw) {
-    localStorage.setItem(LEGACY_INCOME_KEY, nextRaw);
+    // `monthly-incomes` is the canonical source used by the main app. This is an
+    // internal compatibility mirror, not a user edit, so it must not be blocked
+    // after a month has been closed.
+    writeInternalStorage(LEGACY_INCOME_KEY, nextRaw);
     window.dispatchEvent(new CustomEvent('financial-data-synced'));
   }
 }
