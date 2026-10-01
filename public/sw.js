@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'mi-presupuesto-v43-liquid-glass';
+const CACHE_VERSION = 'mi-presupuesto-v44-loan-quincena';
 
 const APP_SHELL = [
   '/',
