@@ -5,7 +5,6 @@ const CLOSED_MONTHS_KEY = 'closed-months';
 const SELECTED_MONTH_KEY = 'ux-selected-month';
 const GOALS_KEY = 'premium-savings-goals';
 const EXPENSES_KEY = 'expenses';
-const INCOME_KEYS = new Set(['monthly-incomes', 'incomes']);
 const DATE_ARRAY_KEYS = new Set(['expenses', 'monthly-incomes', 'incomes', 'loan-capital-payments']);
 const MONTHLY_OBJECT_KEYS = new Set(['monthly-budgets', 'monthlyBudgets']);
 
@@ -30,6 +29,8 @@ const currency = new Intl.NumberFormat('es-GT', {
   currency: 'GTQ',
   maximumFractionDigits: 2
 });
+
+let lastBlockedNotice = { key: '', at: 0 };
 
 function safeParse(raw, fallback) {
   try {
@@ -99,6 +100,7 @@ function calculateMonthSnapshot(month) {
     : [];
   const income = monthIncomes.reduce((sum, item) => sum + Number(item.amount || 0), 0);
   const expense = monthExpenses.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+
   return {
     income,
     expense,
@@ -114,6 +116,14 @@ function readClosedMonths() {
 }
 
 function emitBlocked(month, reason = 'Ese mes está cerrado.') {
+  const now = Date.now();
+  const key = `${month}|${reason}`;
+
+  // Several modules can attempt the same derived write at the same time. One
+  // notice is enough; importantly, a blocked write must never reload the app.
+  if (lastBlockedNotice.key === key && now - lastBlockedNotice.at < 800) return;
+  lastBlockedNotice = { key, at: now };
+
   window.dispatchEvent(new CustomEvent('month-write-blocked', {
     detail: { month, reason }
   }));
@@ -122,6 +132,7 @@ function emitBlocked(month, reason = 'Ese mes está cerrado.') {
 function changedClosedMonthInArray(oldValue, nextValue, closedMonths) {
   const before = Array.isArray(oldValue) ? oldValue : [];
   const after = Array.isArray(nextValue) ? nextValue : [];
+
   return Object.keys(closedMonths).find((month) => {
     const beforeMonth = before.filter((item) => String(item?.date || '').startsWith(month));
     const afterMonth = after.filter((item) => String(item?.date || '').startsWith(month));
@@ -132,6 +143,7 @@ function changedClosedMonthInArray(oldValue, nextValue, closedMonths) {
 function changedClosedMonthInObject(oldValue, nextValue, closedMonths) {
   const before = oldValue && typeof oldValue === 'object' ? oldValue : {};
   const after = nextValue && typeof nextValue === 'object' ? nextValue : {};
+
   return Object.keys(closedMonths).find(
     (month) => JSON.stringify(before[month] ?? null) !== JSON.stringify(after[month] ?? null)
   );
@@ -157,6 +169,10 @@ function installStorageIntegrityGuard() {
     const closedMonths = safeParse(nativeGetItem.call(this, CLOSED_MONTHS_KEY), {});
     const validClosedMonths = closedMonths && typeof closedMonths === 'object' ? closedMonths : {};
     const oldRaw = nativeGetItem.call(this, storageKey);
+
+    // Identical writes are harmless and should never trigger the guard.
+    if (oldRaw === String(value)) return nativeSetItem.call(this, storageKey, value);
+
     const oldValue = safeParse(oldRaw, DATE_ARRAY_KEYS.has(storageKey) ? [] : {});
     const nextValue = safeParse(value, DATE_ARRAY_KEYS.has(storageKey) ? [] : {});
 
@@ -164,7 +180,6 @@ function installStorageIntegrityGuard() {
       const blockedMonth = changedClosedMonthInArray(oldValue, nextValue, validClosedMonths);
       if (blockedMonth) {
         emitBlocked(blockedMonth, 'Los movimientos de un mes cerrado son de solo lectura.');
-        window.setTimeout(() => window.location.reload(), 220);
         return undefined;
       }
     }
@@ -173,16 +188,14 @@ function installStorageIntegrityGuard() {
       const blockedMonth = changedClosedMonthInObject(oldValue, nextValue, validClosedMonths);
       if (blockedMonth) {
         emitBlocked(blockedMonth, 'El presupuesto de un mes cerrado ya no puede modificarse.');
-        window.setTimeout(() => window.location.reload(), 220);
         return undefined;
       }
     }
 
     if (storageKey === 'budgets') {
       const month = selectedMonth();
-      if (validClosedMonths[month] && oldRaw !== String(value)) {
+      if (validClosedMonths[month]) {
         emitBlocked(month, 'El presupuesto de un mes cerrado ya no puede modificarse.');
-        window.setTimeout(() => window.location.reload(), 220);
         return undefined;
       }
     }
@@ -203,7 +216,6 @@ function installStorageIntegrityGuard() {
 
       if (contributions.length && validClosedMonths[month]) {
         emitBlocked(month, 'No puedes agregar aportes a metas dentro de un mes cerrado.');
-        window.setTimeout(() => window.location.reload(), 220);
         return undefined;
       }
 
@@ -221,12 +233,16 @@ function installStorageIntegrityGuard() {
           savingsTransfer: true,
           createdAt: new Date().toISOString()
         }));
-        nativeSetItem.call(this, EXPENSES_KEY, JSON.stringify([...newExpenses, ...(Array.isArray(expenses) ? expenses : [])]));
+
+        nativeSetItem.call(
+          this,
+          EXPENSES_KEY,
+          JSON.stringify([...newExpenses, ...(Array.isArray(expenses) ? expenses : [])])
+        );
         window.dispatchEvent(new CustomEvent('budget-data-changed'));
         window.dispatchEvent(new CustomEvent('goal-contribution-recorded', {
           detail: { month, total: contributions.reduce((sum, item) => sum + item.delta, 0) }
         }));
-        window.setTimeout(() => window.location.reload(), 260);
       }
 
       return result;
@@ -262,7 +278,8 @@ export default function FinancialIntegrityLayer() {
 
     const handleBlocked = (event) => {
       const blockedMonth = event.detail?.month || selectedMonth();
-      setMessage(`${formatMonth(blockedMonth)} está cerrado. Reábrelo para modificar registros.`);
+      const reason = event.detail?.reason || 'Ese mes está cerrado.';
+      setMessage(`${formatMonth(blockedMonth)} está cerrado. ${reason}`);
       window.setTimeout(() => setMessage(''), 3600);
     };
 
@@ -283,6 +300,7 @@ export default function FinancialIntegrityLayer() {
     const captureSubmit = (event) => {
       const form = event.target;
       if (!(form instanceof HTMLFormElement)) return;
+
       if (form.matches('.capital-payment-form')) {
         const paymentDate = form.querySelector('input[type="date"]')?.value;
         const paymentMonth = String(paymentDate || '').slice(0, 7);
@@ -353,6 +371,7 @@ export default function FinancialIntegrityLayer() {
         snapshot: latestSnapshot
       }
     };
+
     localStorage.setItem(CLOSED_MONTHS_KEY, JSON.stringify(next));
     setClosedMonths(next);
     setMessage(`${formatMonth(month)} cerrado correctamente.`);
@@ -387,7 +406,11 @@ export default function FinancialIntegrityLayer() {
               : `Actual: ${currency.format(snapshot.income)} ingresos · ${currency.format(snapshot.expense)} salidas · ${currency.format(snapshot.balance)} disponible neto`}
           </small>
         </div>
-        <button type="button" className={closed ? 'month-reopen-button' : 'month-close-button'} onClick={closed ? reopenMonth : closeMonth}>
+        <button
+          type="button"
+          className={closed ? 'month-reopen-button' : 'month-close-button'}
+          onClick={closed ? reopenMonth : closeMonth}
+        >
           {closed ? 'Reabrir mes' : 'Cerrar mes'}
         </button>
       </section>
