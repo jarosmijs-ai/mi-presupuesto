@@ -2,9 +2,14 @@
   display: none !important;
 }
 
-#quick-payments-host {
+#quick-payments-host,
+#expenses-scheduled-payments-host {
   display: block;
   width: 100%;
+}
+
+#expenses-scheduled-payments-host {
+  margin: 0 0 18px;
 }
 
 .smart-payments-card {
@@ -14,6 +19,10 @@
   border-radius: 20px;
   background: linear-gradient(145deg, rgba(255,255,255,0.96), rgba(248,242,239,0.94));
   box-shadow: 0 12px 34px rgba(53, 92, 125, 0.09);
+}
+
+.smart-payments-inline {
+  margin: 0;
 }
 
 .smart-payments-heading {
@@ -164,7 +173,8 @@
 .smart-loan-note,
 .smart-payments-empty,
 .smart-payments-closed,
-.smart-payment-message {
+.smart-payment-message,
+.smart-payments-inline-summary {
   margin: 12px 0 0;
   padding: 10px 12px;
   border-radius: 12px;
@@ -193,6 +203,14 @@
   color: #6c5b7b;
 }
 
+.smart-payments-inline-summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  background: rgba(108, 91, 123, 0.06);
+  color: #6c5b7b;
+}
+
 .smart-payments-divider {
   display: flex;
   align-items: center;
@@ -213,12 +231,24 @@
   color: rgba(108, 91, 123, 0.72);
 }
 
+.loan-budget-payment-hint {
+  display: block;
+  margin-top: 7px;
+  color: rgba(53, 92, 125, 0.70);
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
 @media (max-width: 640px) {
   .smart-payments-card {
     margin-left: 0;
     margin-right: 0;
     padding: 14px;
     border-radius: 18px;
+  }
+
+  #expenses-scheduled-payments-host {
+    margin-bottom: 14px;
   }
 
   .smart-payments-heading {
@@ -237,6 +267,11 @@
   .smart-payment-undo {
     min-height: 42px;
   }
+
+  .smart-payments-inline-summary {
+    flex-direction: column;
+    gap: 4px;
+  }
 }
 
 html[data-theme='dark'] .smart-payments-card,
@@ -252,6 +287,7 @@ html[data-theme='dark'] .smart-payments-heading h3 {
 }
 
 html[data-theme='dark'] .smart-payment-main small,
-html[data-theme='dark'] .smart-payments-heading small {
+html[data-theme='dark'] .smart-payments-heading small,
+html[data-theme='dark'] .loan-budget-payment-hint {
   color: rgba(245, 237, 241, 0.62);
 }
