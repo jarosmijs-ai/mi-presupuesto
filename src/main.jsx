@@ -24,6 +24,7 @@ import FinancialIntegrityLayer from './FinancialIntegrityLayer.jsx';
 import RecurringPaymentNormalizer from './RecurringPaymentNormalizer.jsx';
 import QuickPaymentsPanel from './QuickPaymentsPanel.jsx';
 import BudgetCategoryPaymentControls from './BudgetCategoryPaymentControls.jsx';
+import LoanInstallmentShortcut from './LoanInstallmentShortcut.jsx';
 import './styles.css';
 import './premium.css';
 import './advanced-finance.css';
@@ -45,6 +46,7 @@ import './settings-enhancements.css';
 import './financial-integrity.css';
 import './quick-payments.css';
 import './budget-category-payments.css';
+import './loan-installment-shortcut.css';
 
 import { registerServiceWorker } from './registerServiceWorker';
 
@@ -66,6 +68,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Safe name="Biometría"><BiometricSettings /></Safe>
         <Safe name="Mejoras de configuración"><SettingsEnhancements /></Safe>
         <Safe name="Consolidación de interfaz"><UXConsolidation /></Safe>
+        <Safe name="Pago de quincena del préstamo"><LoanInstallmentShortcut /></Safe>
         <Safe name="Pagos programados"><QuickPaymentsPanel /></Safe>
         <Safe name="Pagos por categoría"><BudgetCategoryPaymentControls /></Safe>
         <Safe name="Promedio de ingresos"><IncomeAverageCard /></Safe>
