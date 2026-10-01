@@ -21,6 +21,8 @@ import FinancialDataBridge from './FinancialDataBridge.jsx';
 import AutoCloudSync from './AutoCloudSync.jsx';
 import SettingsEnhancements from './SettingsEnhancements.jsx';
 import FinancialIntegrityLayer from './FinancialIntegrityLayer.jsx';
+import RecurringPaymentNormalizer from './RecurringPaymentNormalizer.jsx';
+import QuickPaymentsPanel from './QuickPaymentsPanel.jsx';
 import './styles.css';
 import './premium.css';
 import './advanced-finance.css';
@@ -40,6 +42,7 @@ import './primary-biometric.css';
 import './sunset-palette.css';
 import './settings-enhancements.css';
 import './financial-integrity.css';
+import './quick-payments.css';
 
 import { registerServiceWorker } from './registerServiceWorker';
 
@@ -52,6 +55,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <ErrorBoundary>
       <SecurityGate>
         <Safe name="Integridad financiera"><FinancialIntegrityLayer /></Safe>
+        <Safe name="Normalización de pagos"><RecurringPaymentNormalizer /></Safe>
         <Safe name="Puente de datos"><FinancialDataBridge /></Safe>
         <Safe name="Sincronización automática"><AutoCloudSync /></Safe>
         <ComponentBoundary name="Aplicación principal" fallback={null}><App /></ComponentBoundary>
@@ -60,6 +64,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Safe name="Biometría"><BiometricSettings /></Safe>
         <Safe name="Mejoras de configuración"><SettingsEnhancements /></Safe>
         <Safe name="Consolidación de interfaz"><UXConsolidation /></Safe>
+        <Safe name="Pagos programados"><QuickPaymentsPanel /></Safe>
         <Safe name="Promedio de ingresos"><IncomeAverageCard /></Safe>
         <Safe name="Historial"><HistoryBaselineGuard /></Safe>
         <Safe name="Análisis financiero"><FinancialInsightsDashboard /></Safe>
