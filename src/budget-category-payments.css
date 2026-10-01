@@ -1,0 +1,235 @@
+.budget-row.has-budget-actions {
+  grid-template-columns: 42px minmax(0, 1fr);
+  align-items: start;
+}
+
+.budget-row.has-budget-actions > .budget-input {
+  display: none;
+}
+
+.budget-row.has-budget-actions.budget-editing > .budget-input {
+  display: block;
+  grid-column: 2 / -1;
+  margin-top: 2px;
+}
+
+.budget-category-payment-host {
+  grid-column: 2 / -1;
+  width: 100%;
+  min-width: 0;
+}
+
+.budget-payment-actions {
+  display: grid;
+  gap: 9px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(108, 91, 123, 0.12);
+}
+
+.budget-payment-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.budget-payment-summary span,
+.budget-no-fixed-payment > span {
+  color: #6c5b7b;
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.11em;
+}
+
+.budget-payment-summary strong {
+  color: #355c7d;
+  font-size: 0.76rem;
+}
+
+.budget-payment-buttons {
+  display: grid;
+  gap: 8px;
+}
+
+.budget-payment-chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 11px;
+  border: 1px solid rgba(53, 92, 125, 0.14);
+  border-radius: 13px;
+  background: rgba(255,255,255,0.55);
+}
+
+.budget-payment-chip.is-paid {
+  border-color: rgba(53, 92, 125, 0.20);
+  background: rgba(53, 92, 125, 0.07);
+}
+
+.budget-payment-chip > div:first-child {
+  min-width: 0;
+}
+
+.budget-payment-chip strong,
+.budget-payment-chip small {
+  display: block;
+}
+
+.budget-payment-chip strong {
+  color: #355c7d;
+  font-size: 0.83rem;
+}
+
+.budget-payment-chip small {
+  margin-top: 3px;
+  color: rgba(53, 92, 125, 0.68);
+  font-size: 0.72rem;
+}
+
+.budget-payment-mark,
+.budget-payment-done button,
+.budget-edit-toggle {
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.budget-payment-mark {
+  flex: 0 0 auto;
+  min-height: 38px;
+  padding: 0 12px;
+  border-radius: 11px;
+  background: #355c7d;
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.budget-payment-done {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.budget-payment-done span {
+  padding: 7px 9px;
+  border-radius: 999px;
+  background: rgba(53, 92, 125, 0.10);
+  color: #355c7d;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.budget-payment-done button {
+  padding: 6px 4px;
+  background: transparent;
+  color: #6c5b7b;
+  font-size: 0.7rem;
+  text-decoration: underline;
+}
+
+.budget-payment-mark:disabled,
+.budget-payment-done button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.budget-payment-explanation,
+.budget-payment-closed,
+.budget-payment-message,
+.budget-no-fixed-payment small {
+  display: block;
+  color: rgba(53, 92, 125, 0.68);
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.budget-payment-explanation {
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(53, 92, 125, 0.06);
+}
+
+.budget-no-fixed-payment {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0 2px;
+}
+
+.budget-edit-toggle {
+  justify-self: start;
+  padding: 5px 0;
+  background: transparent;
+  color: rgba(108, 91, 123, 0.78);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-decoration: underline;
+}
+
+.budget-payment-closed {
+  color: #b94f61;
+  font-weight: 800;
+}
+
+.budget-payment-message {
+  padding: 7px 9px;
+  border-radius: 9px;
+  background: rgba(248, 177, 149, 0.16);
+  color: #6c5b7b;
+}
+
+.budget-payment-actions.is-loan {
+  padding: 11px;
+  border: 1px solid rgba(53, 92, 125, 0.15);
+  border-radius: 14px;
+  background: rgba(53, 92, 125, 0.04);
+}
+
+@media (max-width: 620px) {
+  .budget-row.has-budget-actions {
+    grid-template-columns: 40px minmax(0, 1fr);
+  }
+
+  .budget-payment-chip {
+    align-items: flex-start;
+  }
+
+  .budget-payment-mark {
+    min-height: 42px;
+    padding: 0 11px;
+  }
+
+  .budget-payment-done {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+  }
+
+  .budget-no-fixed-payment {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 3px;
+  }
+}
+
+html[data-theme='dark'] .budget-payment-chip,
+html[data-theme='dark'] .budget-payment-actions.is-loan {
+  background: rgba(255,255,255,0.035);
+  border-color: rgba(255,255,255,0.09);
+}
+
+html[data-theme='dark'] .budget-payment-chip strong,
+html[data-theme='dark'] .budget-payment-summary strong {
+  color: #f5edf1;
+}
+
+html[data-theme='dark'] .budget-payment-chip small,
+html[data-theme='dark'] .budget-payment-explanation,
+html[data-theme='dark'] .budget-no-fixed-payment small {
+  color: rgba(245, 237, 241, 0.62);
+}
