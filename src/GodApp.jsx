@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
   Home, ReceiptText, WalletCards, Landmark, MoreHorizontal,
   ChevronLeft, ChevronRight, Plus, ArrowDownLeft, ArrowUpRight,
-  Check, Settings, ShieldCheck, Sparkles, X, Trash2, Fuel,
+  Check, Settings, ShieldCheck, Sparkles, X, Pencil, Trash2, Fuel,
   Smartphone, Zap, Wifi, Utensils, CircleDollarSign, CalendarDays,
   TrendingUp, TrendingDown, Eye, EyeOff, RotateCcw, Copy,
   Calculator, Target, Save, BarChart3, Download, LockKeyhole
@@ -311,6 +311,43 @@ export default function GodApp() {
     return true;
   }
 
+  function updateMovement(item, payload) {
+    const amount = Number(payload.amount || 0);
+    if (!(amount > 0)) return false;
+
+    if (item.kind === 'income') {
+      const next = incomes.map((candidate) =>
+        candidate.id === item.id
+          ? {
+              ...candidate,
+              type: payload.type || candidate.type || 'Ingreso',
+              amount,
+              date: payload.date || candidate.date,
+              note: payload.note ?? candidate.note ?? ''
+            }
+          : candidate
+      );
+      saveIncomes(next);
+    } else {
+      const next = expenses.map((candidate) =>
+        candidate.id === item.id
+          ? {
+              ...candidate,
+              category: payload.category || candidate.category || 'Otros',
+              amount,
+              date: payload.date || candidate.date,
+              note: payload.note ?? candidate.note ?? ''
+            }
+          : candidate
+      );
+      localStorage.setItem('expenses', JSON.stringify(next));
+    }
+
+    refresh();
+    setMessage('Movimiento actualizado.');
+    return true;
+  }
+
   function removeMovement(item) {
     if (!window.confirm('¿Eliminar este movimiento?')) return;
     if (item.kind === 'income') {
@@ -476,6 +513,7 @@ export default function GodApp() {
             formatMoney={formatMoney}
             onAddExpense={() => setSheet({ type: 'expense' })}
             onAddIncome={() => setSheet({ type: 'income' })}
+            onEdit={(item) => setSheet({ type: item.kind, item })}
             onDelete={removeMovement}
           />
         )}
@@ -551,8 +589,13 @@ export default function GodApp() {
           type={sheet.type}
           month={month}
           onClose={() => setSheet(null)}
+          initial={sheet.item || null}
           onSave={(payload) => {
-            const ok = sheet.type === 'income' ? addIncome(payload) : addExpense(payload);
+            const ok = sheet.item
+              ? updateMovement(sheet.item, payload)
+              : sheet.type === 'income'
+                ? addIncome(payload)
+                : addExpense(payload);
             if (ok) setSheet(null);
           }}
         />
@@ -675,7 +718,7 @@ function HomeView({
   );
 }
 
-function MovementsView({ month, incomes, expenses, formatMoney, onAddIncome, onAddExpense, onDelete }) {
+function MovementsView({ month, incomes, expenses, formatMoney, onAddIncome, onAddExpense, onEdit, onDelete }) {
   const [filter, setFilter] = useState('all');
   const items = useMemo(() => [
     ...incomes.map((item) => ({ ...item, kind: 'income' })),
@@ -700,12 +743,12 @@ function MovementsView({ month, incomes, expenses, formatMoney, onAddIncome, onA
         ))}
       </div>
 
-      <MovementList items={shown} formatMoney={formatMoney} onDelete={onDelete} emptyText="No hay movimientos para este filtro." />
+      <MovementList items={shown} formatMoney={formatMoney} onEdit={onEdit} onDelete={onDelete} emptyText="No hay movimientos para este filtro." />
     </div>
   );
 }
 
-function MovementList({ items, formatMoney, onDelete, compact = false, emptyText }) {
+function MovementList({ items, formatMoney, onEdit, onDelete, compact = false, emptyText }) {
   if (!items.length) return <div className="g-empty-state"><ReceiptText size={24} /><strong>Sin movimientos</strong><span>{emptyText}</span></div>;
 
   return (
@@ -722,8 +765,15 @@ function MovementList({ items, formatMoney, onDelete, compact = false, emptyText
               <small>{item.note || (income ? 'Ingreso registrado' : 'Sin nota')} · {item.date}</small>
             </div>
             <strong className={income ? 'g-amount is-income' : 'g-amount'}>{income ? '+' : '−'}{formatMoney(item.amount)}</strong>
-            {onDelete && (
-              <button type="button" className="g-row-action" onClick={() => onDelete(item)} aria-label="Eliminar movimiento"><Trash2 size={16} /></button>
+            {(onEdit || onDelete) && (
+              <div className="g-row-actions">
+                {onEdit && (
+                  <button type="button" className="g-row-action" onClick={() => onEdit(item)} aria-label="Editar movimiento"><Pencil size={15} /></button>
+                )}
+                {onDelete && (
+                  <button type="button" className="g-row-action is-delete" onClick={() => onDelete(item)} aria-label="Eliminar movimiento"><Trash2 size={15} /></button>
+                )}
+              </div>
             )}
           </article>
         );
@@ -893,14 +943,14 @@ function MoreView({ onLaunchPlan, onLaunchSettings }) {
   );
 }
 
-function MovementSheet({ type, month, onClose, onSave }) {
+function MovementSheet({ type, month, initial, onClose, onSave }) {
   const income = type === 'income';
   const [form, setForm] = useState({
-    amount: '',
-    category: 'Comidas',
-    type: 'Primera quincena',
-    date: todayForMonth(month),
-    note: ''
+    amount: initial?.amount ? String(initial.amount) : '',
+    category: initial?.category || 'Comidas',
+    type: initial?.type || 'Primera quincena',
+    date: initial?.date || todayForMonth(month),
+    note: initial?.note || ''
   });
 
   function submit(event) {
@@ -913,7 +963,7 @@ function MovementSheet({ type, month, onClose, onSave }) {
       <section className="g-sheet" role="dialog" aria-modal="true">
         <div className="g-sheet-handle" />
         <header>
-          <div><span className="g-kicker">{income ? 'NUEVO INGRESO' : 'NUEVO GASTO'}</span><h2>{income ? 'Registrar dinero recibido' : 'Registrar movimiento'}</h2></div>
+          <div><span className="g-kicker">{initial ? 'EDITAR MOVIMIENTO' : income ? 'NUEVO INGRESO' : 'NUEVO GASTO'}</span><h2>{initial ? 'Corrige los datos' : income ? 'Registrar dinero recibido' : 'Registrar movimiento'}</h2></div>
           <button type="button" onClick={onClose}><X size={20} /></button>
         </header>
 
@@ -934,7 +984,7 @@ function MovementSheet({ type, month, onClose, onSave }) {
             <label className="g-field"><span>Nota</span><input type="text" value={form.note} onChange={(event) => setForm({ ...form, note: event.target.value })} placeholder="Opcional" /></label>
           </div>
 
-          <button className="g-primary-action g-sheet-save" type="submit"><Check size={18} />Guardar {income ? 'ingreso' : 'gasto'}</button>
+          <button className="g-primary-action g-sheet-save" type="submit"><Check size={18} />{initial ? 'Guardar cambios' : `Guardar ${income ? 'ingreso' : 'gasto'}`}</button>
         </form>
       </section>
     </div>
