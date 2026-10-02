@@ -636,3 +636,130 @@ button:focus-visible, input:focus-visible, select:focus-visible {
     to { opacity: 1; transform: translateY(0); }
   }
 }
+
+
+/* Definitive interaction polish */
+.g-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.g-row-action.is-delete:hover {
+  color: var(--g-red);
+  background: var(--g-red-soft);
+}
+
+/* Advanced tools inherit the definitive palette */
+.finance-modal-backdrop,
+.finance-drawer-backdrop,
+.product-overlay {
+  background: rgba(7, 13, 32, .46) !important;
+  backdrop-filter: blur(12px) saturate(130%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(130%) !important;
+}
+.finance-drawer,
+.product-panel {
+  color: var(--g-ink) !important;
+  border: 1px solid rgba(255,255,255,.78) !important;
+  background:
+    radial-gradient(circle at 92% 0%, rgba(255,238,169,.32), transparent 18rem),
+    rgba(248,247,242,.96) !important;
+  box-shadow: 0 30px 90px rgba(7,13,32,.28) !important;
+}
+.finance-drawer-header,
+.product-panel-header {
+  border-bottom-color: var(--g-line) !important;
+}
+.finance-kicker,
+.product-kicker,
+.finance-section-heading span {
+  color: var(--g-navy) !important;
+}
+.finance-primary-button,
+.finance-apply-button,
+.product-primary,
+.product-settings-save {
+  color: white !important;
+  background: var(--g-navy) !important;
+  border-color: var(--g-navy) !important;
+  box-shadow: 0 10px 24px rgba(15,43,127,.16) !important;
+}
+.finance-tabs,
+.product-segmented {
+  background: rgba(15,43,127,.06) !important;
+}
+.finance-tabs button.active,
+.product-segmented button.active {
+  color: var(--g-navy) !important;
+  background: white !important;
+}
+.finance-insight-card,
+.finance-progress-summary,
+.finance-form,
+.finance-list-item,
+.finance-goal-card,
+.finance-search-panel,
+.product-setting-card,
+.product-account {
+  border-color: rgba(255,255,255,.8) !important;
+  background: rgba(255,255,255,.68) !important;
+  box-shadow: inset 0 1px rgba(255,255,255,.92), 0 10px 26px rgba(18,26,50,.06) !important;
+}
+.finance-progress-track {
+  background: rgba(15,43,127,.08) !important;
+}
+.finance-progress-track > span {
+  background: var(--g-navy) !important;
+}
+.finance-delete-button {
+  color: var(--g-red) !important;
+  background: var(--g-red-soft) !important;
+}
+.product-secondary {
+  color: var(--g-navy) !important;
+  background: var(--g-navy-soft) !important;
+}
+
+/* Update toast and lock screen harmonize with the palette */
+.update-toast {
+  border-color: rgba(255,255,255,.16) !important;
+  background: #101a38 !important;
+}
+.update-toast-primary {
+  color: var(--g-navy) !important;
+  background: var(--g-cream) !important;
+}
+.security-screen {
+  background:
+    radial-gradient(circle at 12% 8%, rgba(255,238,169,.52), transparent 24rem),
+    radial-gradient(circle at 92% 22%, rgba(15,43,127,.13), transparent 28rem),
+    var(--g-canvas) !important;
+}
+.security-card {
+  border-color: rgba(255,255,255,.8) !important;
+  background: rgba(255,255,255,.75) !important;
+  box-shadow: 0 30px 90px rgba(18,26,50,.15) !important;
+  backdrop-filter: blur(28px) saturate(155%) !important;
+}
+.security-logo,
+.security-biometric-button {
+  background: var(--g-navy) !important;
+}
+.security-logo {
+  color: var(--g-cream) !important;
+}
+.security-pin-fallback {
+  color: var(--g-navy) !important;
+}
+
+@media (max-width: 540px) {
+  .g-movement {
+    grid-template-columns: 38px minmax(0,1fr) auto;
+  }
+  .g-row-actions {
+    grid-column: 3;
+    grid-row: 2;
+    justify-self: end;
+    margin-top: -8px;
+  }
+}
