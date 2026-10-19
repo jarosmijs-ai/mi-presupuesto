@@ -454,9 +454,6 @@ export default function GodApp() {
         </div>
 
         <div className="g-top-actions">
-          <button type="button" className="g-add-button" onClick={() => setSheet({ type: 'expense' })} aria-label="Registrar gasto">
-            <Plus size={19} />
-          </button>
           <button
             type="button"
             className="g-icon-button"

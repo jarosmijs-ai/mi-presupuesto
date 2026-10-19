@@ -478,3 +478,189 @@ html[data-theme='dark'] .y-balance-block p.y-neutral {color:#becbc7!important;}
  .g-top-actions .g-add-button,.g-top-actions .g-icon-button,.g-top-actions .g-avatar-button {width:33px;height:33px;flex-basis:33px;}
  .y-action-bar>button {font-size:10.5px;}
 }
+
+
+/* ESTABLISHED YORU · MOBILE DENSITY & NAVIGATION 2026-10-18
+   Screenshot-guided polish. Only presentation; existing finance handlers remain.
+   Financial entry points stay inside Home/Movements/Budget context. */
+:root {
+  --y-nav-height: 56px;
+}
+.g-app {
+  padding-bottom:calc(86px + env(safe-area-inset-bottom)) !important;
+}
+.g-bottom-nav {
+  left:0 !important;
+  right:0 !important;
+  bottom:0 !important;
+  transform:none !important;
+  width:100% !important;
+  max-width:none !important;
+  min-height:calc(var(--y-nav-height) + env(safe-area-inset-bottom)) !important;
+  padding:4px max(10px,calc((100vw - 560px) / 2)) calc(3px + env(safe-area-inset-bottom)) !important;
+  border:0 !important;
+  border-top:1px solid var(--g-line-strong) !important;
+  border-radius:0 !important;
+  background:rgba(12,18,25,.97) !important;
+  box-shadow:0 -5px 23px rgba(0,0,0,.11) !important;
+  backdrop-filter:blur(18px) !important;
+  -webkit-backdrop-filter:blur(18px) !important;
+  grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+  align-items:center;
+}
+html[data-theme="light"] .g-bottom-nav {background:rgba(247,245,239,.97) !important;}
+.g-bottom-nav button {
+  position:relative;min-height:48px !important;
+  padding:2px 0 3px !important;gap:1px !important;
+  color:var(--g-muted);
+  border-radius:4px !important;
+  background:transparent !important;
+  box-shadow:none !important;
+}
+.g-bottom-nav button>span {
+  width:29px;height:25px;
+  border-radius:3px !important;
+  color:inherit;
+  background:transparent !important;
+  box-shadow:none !important;
+}
+.g-bottom-nav button.is-active {color:var(--g-cream) !important;background:transparent !important;}
+.g-bottom-nav button.is-active>span {
+  background:transparent !important;color:var(--g-cream) !important;
+  box-shadow:none !important;
+}
+.g-bottom-nav button.is-active::before {
+  content:'';
+  width:23px;height:2px;position:absolute;top:-4px;left:50%;
+  transform:translateX(-50%);
+  background:var(--g-cream);
+}
+.g-bottom-nav button small {
+  font-family:var(--y-body);font-size:10px !important;
+  color:inherit !important;font-weight:600;white-space:nowrap;
+  letter-spacing:0;line-height:1.12;
+}
+.g-bottom-nav button>span svg{width:19px;height:19px;}
+/* Screen-density rhythm: less marketing-space, more room for information. */
+.g-app .y-shell {gap:0;}
+.y-dispatch .y-section-label,.y-history .y-section-label {margin-bottom:12px;}
+.y-dispatch .y-section-label h2,.y-history .y-section-label h2 {line-height:1.13;}
+.y-budget-page .g-budget-toolbar button {
+  min-height:42px;max-width:100%;
+  padding:0 12px;font-size:12px;
+  border:1px solid var(--g-line);border-radius:6px;
+}
+.y-budget-page .g-budget-toolbar button:active{transform:scale(.98);}
+.y-budget-page .g-budget-card {
+  min-width:0;
+}
+.y-budget-page .g-budget-card-head {
+  min-width:0;
+}
+.y-budget-page .g-budget-numbers strong{font-variant-numeric:tabular-nums;}
+.y-budget-page .g-budget-edit input{min-height:38px;min-width:64px;}
+/* Strong contrast on the mint primary action even when old theme CSS exists. */
+html[data-theme='dark'] .g-app .g-primary-action,
+html[data-theme='light'] .g-app .g-primary-action,
+html[data-theme='dark'] .g-app .y-budget-top-action .g-primary-action,
+html[data-theme='light'] .g-app .y-budget-top-action .g-primary-action {
+  color:#10221c !important;
+  background:#b5d8c6 !important;
+  border-color:#b5d8c6 !important;
+}
+.g-app .g-primary-action :is(svg,span){color:inherit !important;}
+.g-app .g-primary-action:hover{filter:brightness(1.045);}
+@media(max-width:540px){
+  .g-app {padding-bottom:calc(80px + env(safe-area-inset-bottom)) !important;}
+  .g-topbar {padding:10px 13px 9px;}
+  .g-top-actions {gap:6px;}
+  .g-brand strong{font-size:15px;}
+  .g-brand small{font-size:10px;}
+  .g-month-bar {
+    margin:7px auto 11px;
+    padding:2px;
+    min-height:47px;
+    grid-template-columns:40px 1fr 40px;
+    background:transparent;
+    box-shadow:none;
+    border:1px solid var(--g-line);
+  }
+  .g-month-bar>button{width:40px;height:40px;background:var(--y-panel-raised);}
+  .g-month-bar small {font-size:9px;letter-spacing:.08em;line-height:1.05;}
+  .g-month-bar strong{font-size:13px;line-height:1.13;}
+  .g-main{width:calc(100% - 28px);}
+  .y-edition {
+    margin:0;padding:0 0 10px;
+    gap:6px;align-items:center;
+  }
+  .y-edition h2 {
+    font-size:clamp(27px,7.7vw,36px);line-height:1.05;margin:7px 0 0;
+  }
+  .y-edition-seal {height:57px;padding:3px 0 0 9px;min-width:55px;}
+  .y-edition-seal>span {font-size:19px;}
+  .y-edition-seal small{font-size:8px;line-height:1.1;}
+  .y-eyebrow{font-size:9px;}
+  .y-instrument-top{padding:10px 13px;}
+  .y-instrument-body{padding:14px 13px 8px;}
+  .y-balance-block h1{margin:5px 0 5px;font-size:clamp(28px,7.9vw,40px);}
+  .y-utilization{padding:9px 13px 10px;}
+  .y-calibration {display:none;}
+  .y-utilization-track{margin-top:6px;}
+  .y-financial-strip>div{padding:9px 10px;gap:3px;}
+  .y-financial-strip>div:nth-child(3) {padding:8px 10px;}
+  .y-financial-strip strong {font-size:13px;}
+  .y-action-bar {margin:9px 0 24px;}
+  .y-action-bar>button {min-height:45px;padding:7px 9px;font-size:11.5px;}
+  .y-action-bar>button svg{width:15px;height:15px;}
+  .y-section-label h2{font-size:21px;}
+  .y-section-label .y-jp-title{font-size:14px;}
+  .y-history{margin-top:30px;}
+  .y-page {gap:13px;}
+  .y-page-heading{padding:0 0 11px;}
+  .y-page-headline {margin-top:9px;}
+  .y-page-headline h1{font-size:clamp(29px,8vw,37px);}
+  .y-page-headline p{font-size:12px;line-height:1.32;}
+  .y-page-kanji{font-size:27px;}
+  .y-budget-top-action {min-height:43px;gap:8px;}
+  .y-budget-top-action>span {font-size:10px;max-width:none;flex:1;letter-spacing:.035em;}
+  .y-budget-top-action .g-primary-action{min-height:43px;flex:0 0 auto;}
+  .y-budget-totals {padding:12px 15px !important;}
+  .y-budget-totals>div:first-child{
+    padding-bottom:9px;
+    display:flex;flex-wrap:wrap;align-items:center;
+    justify-content:space-between;gap:4px;
+  }
+  .y-budget-totals>div:first-child span{font-size:10px;}
+  .y-budget-totals>div:first-child strong{font-size:17px !important;}
+  .y-budget-totals>div:nth-child(2),
+  .y-budget-totals>div:nth-child(3){padding-top:9px;}
+  .y-budget-totals strong{font-size:14px !important;}
+  .y-budget-page .g-budget-toolbar{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:7px;}
+  .y-budget-page .g-budget-toolbar button{width:100%;padding:0 7px;font-size:11px;justify-content:center;white-space:nowrap;}
+  .y-budget-page .g-budget-toolbar svg{width:15px;height:15px;flex:none;}
+  .y-budget-section-rule{padding:7px 0 10px;}
+  .y-budget-page .g-budget-card{padding:11px 12px;gap:7px;}
+  .y-budget-page .g-budget-card-head{gap:6px;grid-template-columns:17px 29px minmax(0,1fr) auto;}
+  .y-budget-page .g-budget-card-head>div strong {font-size:14px;}
+  .y-budget-page .g-budget-card-head>div small{font-size:11px;}
+  .y-budget-page .g-budget-numbers strong{font-size:14px;}
+  .y-budget-page .g-budget-numbers span{font-size:10px;}
+  .y-budget-page .g-budget-edit input{font-size:13px;}
+  .y-budget-page .g-progress {height:4px;}
+  .g-bottom-nav {
+    --y-nav-height:55px;
+    border-radius:0 !important;
+  }
+  .g-bottom-nav button {min-height:48px !important;}
+  .g-bottom-nav button>span{height:24px;width:28px;}
+  .g-bottom-nav button small {font-size:10px !important;}
+}
+@media(max-width:375px){
+  .y-budget-page .g-budget-card-head{grid-template-columns:15px 26px minmax(0,1fr);gap:5px;}
+  .y-budget-page .g-budget-state{grid-column:3;justify-self:start;}
+  .y-budget-page .g-budget-toolbar button{font-size:10px;}
+  .g-bottom-nav button small{font-size:9.4px !important;}
+}
+@media(prefers-reduced-motion:reduce){
+  .g-bottom-nav,.g-bottom-nav *{transition:none !important;animation:none !important;}
+}
