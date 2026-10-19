@@ -22,6 +22,7 @@ import './primary-biometric.css';
 import './financial-integrity.css';
 import './god.css';
 import './established-yoru.css';
+import './yoru-nightshift.css';
 
 import { registerServiceWorker } from './registerServiceWorker';
 

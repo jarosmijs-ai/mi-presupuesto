@@ -620,100 +620,113 @@ function HomeView({
   const positive = balance >= 0;
   const paidLoan = loanRows.filter((row) => row.expense).length;
   const pendingFixed = fixedRows.filter((row) => !row.expense).slice(0, 3);
-
+  const displayRatio = Math.max(0, Math.min(100, spendRatio));
   return (
-    <div className="g-stack">
-      <section className="g-hero-card">
-        <div className="g-hero-top">
-          <div>
-            <span className="g-kicker">BALANCE DISPONIBLE</span>
+    <div className="g-stack y-shell">
+      <header className="y-edition">
+        <div className="y-edition-copy">
+          <div className="y-eyebrow"><span className="y-edition-square" /> PERSONAL FINANCE JOURNAL <span className="y-separator">/</span> 01</div>
+          <h2>Tu dinero.<br/><em>A tu ritmo.</em></h2>
+          <p>Una lectura clara de tu mes, sin ruido y sin distracciones.</p>
+        </div>
+        <div className="y-edition-seal" aria-hidden="true"><span>家計簿</span><small>YORU<br/>EDITION</small></div>
+      </header>
+
+      <section className="y-instrument" aria-label="Resumen financiero mensual">
+        <div className="y-instrument-top">
+          <span><span className="y-live-dot" aria-hidden="true"/> ESTADO DEL MES <span className="y-micro-muted">/ 月次収支</span></span>
+          <span className="y-local-tag"><LockKeyhole size={12}/> DATOS EN TU DISPOSITIVO</span>
+        </div>
+        <div className="y-instrument-body">
+          <div className="y-balance-block">
+            <span className="y-instrument-label">BALANCE NETO MENSUAL</span>
             <h1>{formatMoney(balance)}</h1>
-            <p className={positive ? 'is-positive' : 'is-negative'}>
-              {positive ? <TrendingUp size={15} /> : <TrendingDown size={15} />}
-              {positive ? 'Vas con margen este mes' : 'Los gastos superan los ingresos'}
+            <p className={positive ? 'y-good' : 'y-caution'}>
+              {positive ? <TrendingUp size={15}/> : <TrendingDown size={15}/>}
+              {positive ? 'Ingresos por encima de gastos' : 'Gastos por encima de ingresos'}
             </p>
           </div>
-          <div className="g-spend-ring" style={{ '--value': `${Math.min(100, Math.max(0, spendRatio)) * 3.6}deg` }}>
-            <div>
-              <strong>{Math.round(spendRatio)}%</strong>
-              <small>usado</small>
-            </div>
+          <div className="y-instrument-serial" aria-hidden="true">
+            <span>財<br/>務</span><small>NV / 01</small>
           </div>
         </div>
-
-        <div className="g-hero-stats">
-          <div><span>Ingresos</span><strong>{formatMoney(totalIncome)}</strong></div>
-          <div><span>Gastos</span><strong>{formatMoney(totalExpense)}</strong></div>
-          <div><span>Presupuesto libre</span><strong>{formatMoney(budgetRemaining)}</strong></div>
+        <div className="y-utilization">
+          <div><span>CONSUMO DE INGRESOS</span><strong>{Math.round(spendRatio)}<small>%</small></strong></div>
+          <div className="y-utilization-track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(displayRatio)} aria-label="Porcentaje de ingresos utilizado">
+            <span style={{width: displayRatio + '%'}} />
+          </div>
+          <div className="y-calibration" aria-hidden="true"><i/><i/><i/><i/><i/><i/><i/><i/><i/><i/><i/><i/><i/><i/><i/><i/><i/><i/><i/><i/></div>
         </div>
-
-        <div className="g-quick-row">
-          <button type="button" onClick={onAddIncome}><ArrowDownLeft size={18} /><span>Ingreso</span></button>
-          <button type="button" onClick={onAddExpense}><ArrowUpRight size={18} /><span>Gasto</span></button>
-          <button type="button" onClick={onOpenBudget}><BarChart3 size={18} /><span>Plan</span></button>
+        <div className="y-financial-strip">
+          <div><span><ArrowDownLeft size={14}/> 01 · INGRESOS</span><strong>{formatMoney(totalIncome)}</strong></div>
+          <div><span><ArrowUpRight size={14}/> 02 · GASTOS</span><strong>{formatMoney(totalExpense)}</strong></div>
+          <div><span><WalletCards size={14}/> 03 · PRESUPUESTO LIBRE</span><strong>{formatMoney(budgetRemaining)}</strong></div>
         </div>
       </section>
 
-      <SectionTitle eyebrow="PRÓXIMO" title="Lo que requiere tu atención" />
-
-      <section className="g-attention-grid">
-        <article className="g-attention-card g-loan-attention">
-          <div className="g-card-title">
-            <span className="g-soft-icon"><Landmark size={18} /></span>
-            <div><strong>Préstamo</strong><small>{paidLoan}/2 cuotas pagadas</small></div>
-            <button type="button" onClick={onOpenLoan}><ChevronRight size={18} /></button>
-          </div>
-          <div className="g-installment-mini-list">
-            {loanRows.map((row) => (
-              <div className={row.expense ? 'is-paid' : ''} key={row.number}>
-                <div>
-                  <span>Pago {row.number} de 2</span>
-                  <strong>{formatMoney(row.item.amount)}</strong>
-                </div>
-                {row.expense ? (
-                  <button type="button" className="g-paid-chip" onClick={() => onUndoLoan(row)}>
-                    <Check size={14} /> Pagado
-                  </button>
-                ) : (
-                  <button type="button" className="g-pay-button" onClick={() => onMarkLoan(row)}>
-                    Ya se pagó
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-        </article>
-
-        <article className="g-attention-card">
-          <div className="g-card-title">
-            <span className="g-soft-icon g-red"><CalendarDays size={18} /></span>
-            <div><strong>Pagos programados</strong><small>{pendingFixed.length ? 'Pendientes del mes' : 'Todo al día'}</small></div>
-          </div>
-          {pendingFixed.length ? (
-            <div className="g-fixed-list">
-              {pendingFixed.map((row) => (
-                <button type="button" key={row.item.id} onClick={() => onMarkRecurring(row)}>
-                  <span>
-                    <strong>{row.item.name || row.item.title || row.item.category}</strong>
-                    <small>Día {row.item.day || 1}</small>
-                  </span>
-                  <b>{formatMoney(row.item.amount)}</b>
-                  <Check size={15} />
-                </button>
-              ))}
-            </div>
-          ) : (
-            <div className="g-empty-inline"><Check size={18} /><span>No tienes pagos pendientes.</span></div>
-          )}
-        </article>
-      </section>
-
-      <div className="g-section-heading-row">
-        <SectionTitle eyebrow="ACTIVIDAD" title="Últimos movimientos" compact />
-        <button type="button" className="g-text-button" onClick={onOpenMoves}>Ver todos</button>
+      <div className="y-action-bar" aria-label="Acciones rápidas">
+        <button type="button" className="y-action-primary" onClick={onAddExpense}>
+          <span className="y-action-number">01</span><span>Registrar gasto</span><Plus size={20}/>
+        </button>
+        <button type="button" onClick={onAddIncome}><span className="y-action-number">02</span><span>Ingreso</span><ArrowDownLeft size={17}/></button>
+        <button type="button" onClick={onOpenBudget}><span className="y-action-number">03</span><span>Mi plan</span><ArrowUpRight size={17}/></button>
       </div>
 
-      <MovementList items={recent} formatMoney={formatMoney} compact emptyText="Todavía no hay movimientos este mes." />
+      <section className="y-dispatch" aria-label="Pagos y vencimientos">
+        <div className="y-section-label">
+          <div><span>02 / PENDIENTES</span><h2>En el radar<span className="y-jp-title" aria-hidden="true">予定</span></h2></div>
+          <small>AGENDA FINANCIERA</small>
+        </div>
+        <div className="y-dispatch-grid">
+          <article className="y-dispatch-section">
+            <div className="y-dispatch-heading">
+              <span><Landmark size={17}/> PRÉSTAMO</span>
+              <button type="button" onClick={onOpenLoan} aria-label="Ir al préstamo"><ArrowUpRight size={18}/></button>
+            </div>
+            <div className="y-dispatch-subline">{paidLoan} de {loanRows.length} cuotas registradas</div>
+            <div className="y-dispatch-list">
+              {loanRows.map((row) => (
+                <div className="y-due-row" key={row.number}>
+                  <span className="y-due-index">0{row.number}</span>
+                  <div className="y-due-info"><span>Cuota {row.number}</span><strong>{formatMoney(row.item.amount)}</strong></div>
+                  {row.expense ? (
+                    <button type="button" className="y-mark-done" onClick={() => onUndoLoan(row)}><Check size={13}/> Pagado</button>
+                  ) : (
+                    <button type="button" className="y-mark-pending" onClick={() => onMarkLoan(row)}>Marcar pago <ArrowUpRight size={13}/></button>
+                  )}
+                </div>
+              ))}
+              {!loanRows.length && <span className="y-inline-empty">Sin cuotas configuradas.</span>}
+            </div>
+          </article>
+          <article className="y-dispatch-section">
+            <div className="y-dispatch-heading"><span><CalendarDays size={17}/> PAGOS PROGRAMADOS</span><span className="y-dispatch-count">{pendingFixed.length.toString().padStart(2,'0')} PEND.</span></div>
+            <div className="y-dispatch-subline">Agenda de pagos recurrentes</div>
+            <div className="y-dispatch-list">
+              {pendingFixed.map((row, index) => (
+                <button type="button" className="y-due-row y-recurring-button" key={row.item.id} onClick={() => onMarkRecurring(row)}>
+                  <span className="y-due-index">{String(index+1).padStart(2,'0')}</span>
+                  <div className="y-due-info"><span>{row.item.name || row.item.title || row.item.category}</span><strong>{formatMoney(row.item.amount)}</strong></div>
+                  <span className="y-due-day">DÍA {row.item.day || 1} <Check size={14}/></span>
+                </button>
+              ))}
+              {!pendingFixed.length && <span className="y-inline-empty"><Check size={14}/> No tienes pagos pendientes.</span>}
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section className="y-history" aria-label="Actividad reciente">
+        <div className="y-section-label">
+          <div><span>03 / ACTIVIDAD</span><h2>Últimas entradas<span className="y-jp-title" aria-hidden="true">記録</span></h2></div>
+          <button type="button" className="y-history-more" onClick={onOpenMoves}>Historial completo <ArrowUpRight size={16}/></button>
+        </div>
+        <div className="y-receipt">
+          <div className="y-receipt-head"><span>FECHA / DESCRIPCIÓN</span><span>IMPORTE (GTQ)</span></div>
+          <MovementList items={recent} formatMoney={formatMoney} compact emptyText="Todavía no hay movimientos este mes." />
+          <div className="y-receipt-foot"><span>REGISTRO PERSONAL</span><span>夜 // FIN</span></div>
+        </div>
+      </section>
     </div>
   );
 }
