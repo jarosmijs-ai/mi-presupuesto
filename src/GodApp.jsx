@@ -11,6 +11,7 @@ import {
 import BackupPanel from './BackupPanel';
 import InstallAppButton from './InstallAppButton';
 import FinanceTrend from './FinanceTrend.jsx';
+import ExpenseRhythm from './ExpenseRhythm.jsx';
 import {
   loadAllMonthlyBudgets,
   saveAllMonthlyBudgets,
@@ -519,6 +520,7 @@ export default function GodApp() {
             month={month}
             incomes={monthIncomes}
             expenses={monthExpenses}
+            privateMode={privateMode}
             formatMoney={formatMoney}
             onAddExpense={() => setSheet({ type: 'expense' })}
             onAddIncome={() => setSheet({ type: 'income' })}
@@ -743,7 +745,7 @@ function HomeView({
   );
 }
 
-function MovementsView({ month, incomes, expenses, formatMoney, onAddIncome, onAddExpense, onEdit, onDelete }) {
+function MovementsView({ month, incomes, expenses, privateMode, formatMoney, onAddIncome, onAddExpense, onEdit, onDelete }) {
   const [filter, setFilter] = useState('all');
   const items = useMemo(() => [
     ...incomes.map((item) => ({ ...item, kind: 'income' })),
@@ -766,6 +768,8 @@ function MovementsView({ month, incomes, expenses, formatMoney, onAddIncome, onA
         <div><small>INGRESOS</small><strong className="y-good">{formatMoney(totalIn)}</strong></div>
         <div><small>GASTOS</small><strong className="y-caution">{formatMoney(totalOut)}</strong></div>
       </section>
+
+      <ExpenseRhythm expenses={expenses} month={month} privateMode={privateMode} />
 
       <div className="y-ledger-toolbar">
         <div className="g-segmented" aria-label="Filtrar movimientos">
