@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { jsPDF } from 'jspdf';
 import { cloudConfigured, getSession, pullBackup, pushBackup, signIn, signOut, signUp } from './cloudSync';
 import { hasPin, removePin, savePin } from './SecurityGate';
 
@@ -162,7 +161,8 @@ function exportCsv() {
   downloadFile(`mi-presupuesto-${new Date().toISOString().slice(0, 10)}.csv`, `\uFEFF${csv}`, 'text/csv;charset=utf-8');
 }
 
-function generatePdfReport() {
+async function generatePdfReport() {
+  const { jsPDF } = await import('jspdf');
   const month = selectedMonth();
   const expenses = safeParse('expenses').filter((item) => String(item.date || '').startsWith(month));
   const incomes = getIncomes().filter((item) => String(item.date || '').startsWith(month));

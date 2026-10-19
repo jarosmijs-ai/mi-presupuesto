@@ -23,4 +23,5 @@ assert(app.includes("onLaunchSettings={() => launch('.product-settings-button')}
 assert(backup.includes('existingEntries')&&backup.includes('rollbackError'),'Backup transaction protection missing');
 assert(sw.includes('cache.put(path, response)'),'Offline assets are not precached');
 assert(important < 200,'Important-rule count too high');
+assert(!read('src/ProductCenter.jsx').includes("import { jsPDF } from 'jspdf'"),'PDF engine must lazy-load');
 console.log(JSON.stringify({result:'pass',cssBytes:Buffer.byteLength(css),declarations,important},null,2));
