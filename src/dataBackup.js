@@ -4,7 +4,7 @@ function createBackupName() {
   const now = new Date();
   const date = now.toISOString().slice(0, 10);
   const time = now.toTimeString().slice(0, 8).replaceAll(':', '-');
-  return `mi-presupuesto-${date}-${time}.json`;
+  return `finance-${date}-${time}.json`;
 }
 
 function readAllLocalStorage() {
@@ -45,7 +45,7 @@ function validateBackup(backup) {
   }
 
   if (backup.app !== 'mi-presupuesto') {
-    throw new Error('Este archivo no pertenece a Mi Presupuesto.');
+    throw new Error('Este archivo no pertenece a Finance.');
   }
 
   if (!backup.data || typeof backup.data !== 'object' || Array.isArray(backup.data)) {
