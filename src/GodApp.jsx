@@ -948,27 +948,42 @@ function NumberField({ label, value, onChange, step = '0.01' }) {
 function MoreView({ onLaunchPlan, onLaunchSettings }) {
   return (
     <div className="g-stack y-page y-more-page">
-      <div className="g-page-head"><div><span className="g-kicker">MÁS</span><h1>Herramientas</h1><p>Todo lo avanzado, sin estorbarte en el día a día.</p></div></div>
+      <header className="y-page-heading">
+        <div className="y-page-kicker"><span>05</span> / PERSONAL CONTROL DESK <span className="y-jp-annotation">設定</span></div>
+        <div className="y-page-headline">
+          <div><h1>Tu espacio<span>.</span></h1><p>Herramientas, preferencias y control de tu información.</p></div>
+          <span className="y-page-kanji" aria-hidden="true">道具</span>
+        </div>
+      </header>
 
-      <section className="g-more-grid">
+      <div className="y-more-preface">
+        <span>CONTROL CENTER / 夜</span>
+        <strong>Solo lo que necesitas.</strong>
+        <small>Una app personal, sin cuentas obligatorias y con tus registros en este dispositivo.</small>
+      </div>
+
+      <section className="g-more-grid" aria-label="Herramientas adicionales">
         <button type="button" className="g-tool-card g-tool-navy" onClick={onLaunchPlan}>
+          <span className="y-tool-number">01</span>
           <span className="g-tool-icon"><Sparkles size={22} /></span>
           <div><strong>Plan y metas</strong><small>Recurrentes, ahorro y planificación.</small></div>
-          <ChevronRight size={18} />
+          <ArrowUpRight size={19} />
         </button>
-
         <button type="button" className="g-tool-card" onClick={onLaunchSettings}>
+          <span className="y-tool-number">02</span>
           <span className="g-tool-icon"><Settings size={22} /></span>
-          <div><strong>Ajustes y reportes</strong><small>Seguridad, nube, exportación y preferencias.</small></div>
-          <ChevronRight size={18} />
+          <div><strong>Ajustes y reportes</strong><small>Apariencia, exportaciones y preferencias.</small></div>
+          <ArrowUpRight size={19} />
         </button>
       </section>
-
+      <div className="y-more-asset-heading">
+        <span>RESGUARDO LOCAL</span>
+        <small>03 / ARCHIVO PERSONAL</small>
+      </div>
       <section className="g-privacy-note">
         <ShieldCheck size={20} />
-        <div><strong>Datos bajo tu control</strong><small>La app conserva su sistema de respaldo, seguridad y sincronización ya configurado.</small></div>
+        <div><strong>Tus datos permanecen en el dispositivo.</strong><small>El respaldo manual permite guardar y recuperar tu información cuando lo decidas.</small></div>
       </section>
-
       <BackupPanel />
       <InstallAppButton />
     </div>
