@@ -10,6 +10,7 @@ import {
 
 import BackupPanel from './BackupPanel';
 import InstallAppButton from './InstallAppButton';
+import FinanceTrend from './FinanceTrend.jsx';
 import {
   loadAllMonthlyBudgets,
   saveAllMonthlyBudgets,
@@ -451,7 +452,7 @@ export default function GodApp() {
         <div className="g-brand">
           <span className="g-brand-mark" aria-hidden="true">夜</span>
           <div>
-            <strong>Mi Presupuesto</strong>
+            <strong>Finance</strong>
             <small>YORU <span aria-hidden="true">/ 夜帳</span></small>
           </div>
         </div>
@@ -496,6 +497,10 @@ export default function GodApp() {
             spendRatio={spendRatio}
             budgetRemaining={budgetRemaining}
             recent={recent}
+            month={month}
+            allIncomes={incomes}
+            allExpenses={expenses}
+            privateMode={privateMode}
             loanRows={loanRows}
             fixedRows={fixedRows}
             onAddExpense={() => setSheet({ type: 'expense' })}
@@ -616,7 +621,7 @@ export default function GodApp() {
 
 function HomeView({
   formatMoney, totalIncome, totalExpense, balance, spendRatio, budgetRemaining,
-  recent, loanRows, fixedRows, onAddExpense, onAddIncome, onOpenMoves,
+  recent, month, allIncomes, allExpenses, privateMode, loanRows, fixedRows, onAddExpense, onAddIncome, onOpenMoves,
   onOpenBudget, onOpenLoan, onMarkLoan, onUndoLoan, onMarkRecurring
 }) {
   const positive = balance > 0;
@@ -677,9 +682,11 @@ function HomeView({
         <button type="button" onClick={onOpenBudget}><span className="y-action-number">03</span><span>Mi plan</span><ArrowUpRight size={17}/></button>
       </div>
 
+      <FinanceTrend month={month} incomes={allIncomes} expenses={allExpenses} privateMode={privateMode} />
+
       <section className="y-dispatch" aria-label="Pagos y vencimientos">
         <div className="y-section-label">
-          <div><span>02 / PENDIENTES</span><h2>En el radar<span className="y-jp-title" aria-hidden="true">予定</span></h2></div>
+          <div><span>03 / PENDIENTES</span><h2>En el radar<span className="y-jp-title" aria-hidden="true">予定</span></h2></div>
           <small>AGENDA FINANCIERA</small>
         </div>
         <div className="y-dispatch-grid">
@@ -723,7 +730,7 @@ function HomeView({
 
       <section className="y-history" aria-label="Actividad reciente">
         <div className="y-section-label">
-          <div><span>03 / ACTIVIDAD</span><h2>Últimas entradas<span className="y-jp-title" aria-hidden="true">記録</span></h2></div>
+          <div><span>04 / ACTIVIDAD</span><h2>Últimas entradas<span className="y-jp-title" aria-hidden="true">記録</span></h2></div>
           <button type="button" className="y-history-more" onClick={onOpenMoves}>Historial completo <ArrowUpRight size={16}/></button>
         </div>
         <div className="y-receipt">
