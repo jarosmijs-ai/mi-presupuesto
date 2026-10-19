@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'mi-presupuesto-god-v1';
+const CACHE_VERSION = 'finance-established-v2';
 
 const APP_SHELL = [
   '/',
@@ -14,7 +14,19 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches
       .open(CACHE_VERSION)
-      .then((cache) => cache.addAll(APP_SHELL))
+      .then(async (cache) => {
+        await cache.addAll(APP_SHELL);
+        // Vite emits hashed scripts and styles. Cache the shell's current assets
+        // so the installed PWA can load its JavaScript without a connection.
+        const documentResponse = await cache.match('/index.html');
+        const html = documentResponse ? await documentResponse.text() : '';
+        const assetPaths = [...html.matchAll(/(?:src|href)=["'](\/assets\/[^"']+\.(?:js|css))["']/g)]
+          .map((match) => match[1]);
+        await Promise.all([...new Set(assetPaths)].map(async (path) => {
+          const response = await fetch(path, { cache: 'no-store' });
+          if (response.ok) await cache.put(path, response);
+        }));
+      })
       .then(() => self.skipWaiting())
   );
 });
@@ -72,7 +84,18 @@ self.addEventListener('fetch', (event) => {
   }
 
   if (url.pathname.startsWith('/assets/')) {
-    event.respondWith(fetch(request, { cache: 'no-store' }).catch(() => caches.match(request)));
+    event.respondWith(
+      fetch(request).then(async (response) => {
+        if (response.ok) {
+          const cache = await caches.open(CACHE_VERSION);
+          await cache.put(request, response.clone());
+        }
+        return response;
+      }).catch(async () => {
+        const cached = await caches.match(request);
+        return cached || Response.error();
+      })
+    );
     return;
   }
 

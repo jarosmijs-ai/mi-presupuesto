@@ -258,6 +258,13 @@ export default function FinancialIntegrityLayer() {
   const [closedMonths, setClosedMonths] = useState(readClosedMonths);
   const [message, setMessage] = useState('');
 
+  // A month-closure confirmation should disappear without obstructing controls.
+  useEffect(() => {
+    if (!message) return undefined;
+    const timeout = window.setTimeout(() => setMessage(''), 3500);
+    return () => window.clearTimeout(timeout);
+  }, [message]);
+
   useEffect(() => {
     installStorageIntegrityGuard();
 

@@ -4,7 +4,7 @@ function createBackupName() {
   const now = new Date();
   const date = now.toISOString().slice(0, 10);
   const time = now.toTimeString().slice(0, 8).replaceAll(':', '-');
-  return `mi-presupuesto-${date}-${time}.json`;
+  return `finance-${date}-${time}.json`;
 }
 
 function readAllLocalStorage() {
@@ -45,7 +45,7 @@ function validateBackup(backup) {
   }
 
   if (backup.app !== 'mi-presupuesto') {
-    throw new Error('Este archivo no pertenece a Mi Presupuesto.');
+    throw new Error('Este archivo no pertenece a Finance.');
   }
 
   if (!backup.data || typeof backup.data !== 'object' || Array.isArray(backup.data)) {
@@ -71,16 +71,26 @@ export async function importAppBackup(file) {
 
   const backup = validateBackup(parsed);
   const entries = Object.entries(backup.data);
+  if (entries.some(([key, value]) => typeof key !== 'string' || typeof value !== 'string')) {
+    throw new Error('El respaldo contiene registros inválidos; no se modificaron tus datos.');
+  }
+  const existingEntries = readAllLocalStorage();
   const previousBypass = Boolean(window.__MI_PRESUPUESTO_STORAGE_BYPASS__);
   window.__MI_PRESUPUESTO_STORAGE_BYPASS__ = true;
 
   try {
     localStorage.clear();
-
-    entries.forEach(([key, value]) => {
-      if (typeof key !== 'string' || typeof value !== 'string') return;
-      localStorage.setItem(key, value);
-    });
+    entries.forEach(([key, value]) => localStorage.setItem(key, value));
+  } catch (error) {
+    // A quota / storage error must never leave a partially imported ledger.
+    // Attempt to restore the exact state that was present before import.
+    try {
+      localStorage.clear();
+      Object.entries(existingEntries).forEach(([key, value]) => localStorage.setItem(key, value));
+    } catch (rollbackError) {
+      throw new Error('No se pudo completar ni revertir la restauración. Conserva el archivo de respaldo original.', { cause: rollbackError });
+    }
+    throw new Error('La restauración falló; tus datos anteriores fueron recuperados.', { cause: error });
   } finally {
     window.__MI_PRESUPUESTO_STORAGE_BYPASS__ = previousBypass;
   }

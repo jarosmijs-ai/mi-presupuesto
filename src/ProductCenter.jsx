@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { jsPDF } from 'jspdf';
 import { cloudConfigured, getSession, pullBackup, pushBackup, signIn, signOut, signUp } from './cloudSync';
 import { hasPin, removePin, savePin } from './SecurityGate';
 
@@ -159,10 +158,11 @@ function exportCsv() {
   const csv = [header, ...rows.map((row) => Object.values(row))]
     .map((row) => row.map(csvEscape).join(','))
     .join('\n');
-  downloadFile(`mi-presupuesto-${new Date().toISOString().slice(0, 10)}.csv`, `\uFEFF${csv}`, 'text/csv;charset=utf-8');
+  downloadFile(`finance-${new Date().toISOString().slice(0, 10)}.csv`, `\uFEFF${csv}`, 'text/csv;charset=utf-8');
 }
 
-function generatePdfReport() {
+async function generatePdfReport() {
+  const { jsPDF } = await import('jspdf');
   const month = selectedMonth();
   const expenses = safeParse('expenses').filter((item) => String(item.date || '').startsWith(month));
   const incomes = getIncomes().filter((item) => String(item.date || '').startsWith(month));
@@ -303,18 +303,18 @@ function generatePdfReport() {
     doc.text(value, pageWidth - margin - 4, y, { align: 'right' });
   }
 
-  function addPage(title = 'Mi Presupuesto', subtitle = `Reporte financiero de ${monthLabel(month)}`) {
+  function addPage(title = 'Finance', subtitle = `Reporte financiero de ${monthLabel(month)}`) {
     doc.addPage();
     drawHeader(title, subtitle);
     return 44;
   }
 
-  drawHeader('Mi Presupuesto', `Reporte financiero de ${monthLabel(month)}`);
+  drawHeader('Finance', `Reporte financiero de ${monthLabel(month)}`);
   doc.setProperties({
     title: `Reporte financiero ${month}`,
     subject: 'Reporte financiero mensual',
-    author: 'Mi Presupuesto',
-    creator: 'Mi Presupuesto'
+    author: 'Finance',
+    creator: 'Finance'
   });
 
   let y = 42;
@@ -354,7 +354,7 @@ function generatePdfReport() {
   });
 
   y += insightHeight + 8;
-  if (y > 176) y = addPage('Mi Presupuesto', `Análisis de gasto de ${monthLabel(month)}`);
+  if (y > 176) y = addPage('Finance', `Análisis de gasto de ${monthLabel(month)}`);
   drawSectionTitle('Distribución de gasto por categoría', y);
   y += 8;
   const chartHeight = Math.max(36, topCategories.length * 9 + 6);
@@ -411,7 +411,7 @@ function generatePdfReport() {
     doc.text(currency(item.total), x + weeklyBarWidth / 2, baseY - 23, { align: 'center' });
   });
 
-  y = addPage('Mi Presupuesto', `Detalle transaccional de ${monthLabel(month)}`);
+  y = addPage('Finance', `Detalle transaccional de ${monthLabel(month)}`);
   drawSectionTitle('Detalle de movimientos', y);
   y += 8;
   const columns = [
@@ -444,7 +444,7 @@ function generatePdfReport() {
       const detailLines = doc.splitTextToSize(String(movement.detail), columns[3].width - 4);
       const rowHeight = Math.max(9, Math.max(categoryLines.length, detailLines.length, 1) * 4.2 + 3);
       if (y + rowHeight > pageHeight - 14) {
-        y = addPage('Mi Presupuesto', `Detalle transaccional de ${monthLabel(month)}`);
+        y = addPage('Finance', `Detalle transaccional de ${monthLabel(month)}`);
         drawSectionTitle('Detalle de movimientos', y);
         y += 8;
         drawTableHeader();
@@ -478,7 +478,7 @@ function generatePdfReport() {
     doc.text(`Página ${page} de ${pageCount}`, pageWidth - margin, pageHeight - 7, { align: 'right' });
   }
 
-  doc.save(`mi-presupuesto-${month}.pdf`);
+  doc.save(`finance-${month}.pdf`);
 }
 
 function notifyDuePayments() {
@@ -487,7 +487,7 @@ function notifyDuePayments() {
   const today = new Date().getDate();
   const due = recurring.filter((item) => item.active && Number(item.day) <= today);
   if (!due.length || window.Notification.permission !== 'granted') return;
-  new window.Notification('Mi Presupuesto', {
+  new window.Notification('Finance', {
     body: `${due.length} pago${due.length === 1 ? '' : 's'} recurrente${due.length === 1 ? '' : 's'} podría${due.length === 1 ? '' : 'n'} estar pendiente${due.length === 1 ? '' : 's'}.`,
     icon: '/icons/icon-192.png'
   });

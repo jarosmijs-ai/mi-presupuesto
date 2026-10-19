@@ -76,7 +76,7 @@ export default function InstallAppButton() {
             APP INSTALADA
           </span>
 
-          <h2>Mi Presupuesto</h2>
+          <h2>Finance</h2>
 
           <p>
             Ya puedes abrirla desde la pantalla
@@ -94,7 +94,7 @@ export default function InstallAppButton() {
           APLICACIÓN MÓVIL
         </span>
 
-        <h2>Instalar Mi Presupuesto</h2>
+        <h2>Instalar Finance</h2>
 
         <p>
           Agrégala a la pantalla de inicio y

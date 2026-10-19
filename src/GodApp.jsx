@@ -10,6 +10,7 @@ import {
 
 import BackupPanel from './BackupPanel';
 import InstallAppButton from './InstallAppButton';
+import FinanceTrend from './FinanceTrend.jsx';
 import {
   loadAllMonthlyBudgets,
   saveAllMonthlyBudgets,
@@ -218,7 +219,7 @@ export default function GodApp() {
   );
   const balance = totalIncome - totalExpense;
   const budgetTotal = Object.values(budgets).reduce((sum, value) => sum + Number(value || 0), 0);
-  const budgetRemaining = Math.max(0, budgetTotal - totalExpense);
+  const budgetRemaining = budgetTotal - totalExpense;
   const spendRatio = totalIncome > 0 ? (totalExpense / totalIncome) * 100 : 0;
 
   const breakdown = useMemo(() => getMonthlyLoanBreakdown({
@@ -267,7 +268,10 @@ export default function GodApp() {
   function openSection(id) {
     setSection(id);
     localStorage.setItem('god-section', id);
-    window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    window.requestAnimationFrame(() => window.scrollTo({
+      top: 0,
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'
+    }));
   }
 
   function moveMonth(delta) {
@@ -448,7 +452,7 @@ export default function GodApp() {
         <div className="g-brand">
           <span className="g-brand-mark" aria-hidden="true">夜</span>
           <div>
-            <strong>Mi Presupuesto</strong>
+            <strong>Finance</strong>
             <small>YORU <span aria-hidden="true">/ 夜帳</span></small>
           </div>
         </div>
@@ -477,12 +481,13 @@ export default function GodApp() {
         <button type="button" onClick={() => moveMonth(-1)} aria-label="Mes anterior"><ChevronLeft size={20} /></button>
         <div>
           <small>MES ACTIVO</small>
-          <strong>{formatMonthLabel(month)}</strong>
+          <strong className="y-month-label" key={month}>{formatMonthLabel(month)}</strong>
         </div>
         <button type="button" onClick={() => moveMonth(1)} aria-label="Mes siguiente"><ChevronRight size={20} /></button>
       </div>
 
       <main className="g-main">
+        <div className="y-route-cue" data-route={section} key={`cue-${section}`} aria-hidden="true" />
         {section === 'home' && (
           <HomeView
             formatMoney={formatMoney}
@@ -492,6 +497,10 @@ export default function GodApp() {
             spendRatio={spendRatio}
             budgetRemaining={budgetRemaining}
             recent={recent}
+            month={month}
+            allIncomes={incomes}
+            allExpenses={expenses}
+            privateMode={privateMode}
             loanRows={loanRows}
             fixedRows={fixedRows}
             onAddExpense={() => setSheet({ type: 'expense' })}
@@ -554,9 +563,16 @@ export default function GodApp() {
             onLaunchSettings={() => launch('.product-settings-button')}
           />
         )}
+        {section === 'more' && (
+          <div className="y-month-close-heading">
+            <span>04 / ADMINISTRACIÓN DEL MES</span>
+            <small>CIERRE LOCAL</small>
+          </div>
+        )}
+        <div id="month-close-host" hidden={section !== 'more'} />
       </main>
 
-      <nav className="g-bottom-nav" aria-label="Navegación principal">
+      <nav className="g-bottom-nav" aria-label="Navegación principal" style={{ '--y-active-left': `${(Math.max(0, NAV.findIndex((item) => item.id === section)) + 0.5) * 20}%` }}>
         {NAV.map((item) => {
           const Icon = item.icon;
           const active = section === item.id;
@@ -605,7 +621,7 @@ export default function GodApp() {
 
 function HomeView({
   formatMoney, totalIncome, totalExpense, balance, spendRatio, budgetRemaining,
-  recent, loanRows, fixedRows, onAddExpense, onAddIncome, onOpenMoves,
+  recent, month, allIncomes, allExpenses, privateMode, loanRows, fixedRows, onAddExpense, onAddIncome, onOpenMoves,
   onOpenBudget, onOpenLoan, onMarkLoan, onUndoLoan, onMarkRecurring
 }) {
   const positive = balance > 0;
@@ -626,6 +642,7 @@ function HomeView({
       </header>
 
       <section className="y-instrument" aria-label="Resumen financiero mensual">
+        <span className="y-instrument-glint" aria-hidden="true" />
         <div className="y-instrument-top">
           <span><span className="y-live-dot" aria-hidden="true"/> RESUMEN MENSUAL <span className="y-micro-muted">/ 月次</span></span>
           <span className="y-local-tag"><LockKeyhole size={12}/> DATOS EN TU DISPOSITIVO</span>
@@ -644,7 +661,7 @@ function HomeView({
           </div>
         </div>
         <div className="y-utilization">
-          <div><span>PORCENTAJE DE INGRESOS GASTADO</span><strong>{totalIncome > 0 ? <>{Math.round(spendRatio)}<small>%</small></> : '—'}</strong></div>
+          <div><span>INGRESOS UTILIZADOS</span><strong>{totalIncome > 0 ? <>{Math.round(spendRatio)}<small>%</small></> : '—'}</strong></div>
           <div className="y-utilization-track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(displayRatio)} aria-label="Porcentaje de ingresos utilizado">
             <span style={{width: displayRatio + '%'}} />
           </div>
@@ -665,9 +682,11 @@ function HomeView({
         <button type="button" onClick={onOpenBudget}><span className="y-action-number">03</span><span>Mi plan</span><ArrowUpRight size={17}/></button>
       </div>
 
+      <FinanceTrend month={month} incomes={allIncomes} expenses={allExpenses} privateMode={privateMode} />
+
       <section className="y-dispatch" aria-label="Pagos y vencimientos">
         <div className="y-section-label">
-          <div><span>02 / PENDIENTES</span><h2>En el radar<span className="y-jp-title" aria-hidden="true">予定</span></h2></div>
+          <div><span>03 / PENDIENTES</span><h2>En el radar<span className="y-jp-title" aria-hidden="true">予定</span></h2></div>
           <small>AGENDA FINANCIERA</small>
         </div>
         <div className="y-dispatch-grid">
@@ -711,7 +730,7 @@ function HomeView({
 
       <section className="y-history" aria-label="Actividad reciente">
         <div className="y-section-label">
-          <div><span>03 / ACTIVIDAD</span><h2>Últimas entradas<span className="y-jp-title" aria-hidden="true">記録</span></h2></div>
+          <div><span>04 / ACTIVIDAD</span><h2>Últimas entradas<span className="y-jp-title" aria-hidden="true">記録</span></h2></div>
           <button type="button" className="y-history-more" onClick={onOpenMoves}>Historial completo <ArrowUpRight size={16}/></button>
         </div>
         <div className="y-receipt">

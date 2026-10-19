@@ -1,0 +1,36 @@
+name: YORU Product Quality
+on:
+  push:
+    branches: [main, established/yoru-final-qa, established/yoru-motion-polish, established/finance-final-release]
+  pull_request:
+    branches: [main, established/yoru-final-qa]
+permissions:
+  contents: read
+jobs:
+  quality:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run test:quality
+      - run: npm run build
+      - name: Install browser test runner without lockfile changes
+        run: npm install --no-save --package-lock=false @playwright/test@1.55.0
+      - run: npx playwright install --with-deps chromium
+      - run: mkdir -p test-artifacts
+      - name: Test flows and visual layout
+        run: npm run test:e2e
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: yoru-visual-audit
+          path: |
+            test-artifacts
+            test-results
+            playwright-report
+          retention-days: 7

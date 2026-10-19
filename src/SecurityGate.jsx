@@ -139,7 +139,7 @@ export default function SecurityGate({ children }) {
       <section className={`security-card ${biometricPrimary ? 'biometric-primary' : ''}`} aria-labelledby="security-title">
         <div className="security-brand-row">
           <div className="security-logo" aria-hidden="true">Q</div>
-          <div><span>MI PRESUPUESTO</span><small>Acceso protegido</small></div>
+          <div><span>FINANCE</span><small>Acceso protegido</small></div>
         </div>
 
         <div className="security-copy">

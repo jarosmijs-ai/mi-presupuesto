@@ -1,0 +1,265 @@
+/*
+ * YORU / ESTABLISHED — Motion Language 01
+ * Deliberate, GPU-friendly feedback rather than decorative page-wide fading.
+ *
+ * FINANCIAL SAFETY: Never hide/reveal balances, editable amounts, ledger rows,
+ * forms or primary content with opacity. Animation is optional enhancement.
+ * No timers, storage writes, dependencies, or mutation of finance logic.
+ */
+:root {
+  --y-motion-press: 145ms;
+  --y-motion-responsive: 240ms;
+  --y-motion-route: 430ms;
+  --y-motion-ceremony: 680ms;
+  --y-ease-out: cubic-bezier(.18,.82,.24,1);
+  --y-ease-spring: cubic-bezier(.21,1.35,.37,1);
+}
+
+.g-app .g-main { position: relative; }
+.y-route-cue {
+  position: absolute;
+  top: -7px;
+  right: 0;
+  width: min(165px, 38%);
+  height: 2px;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.y-route-cue::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, var(--g-cream) 48%, transparent);
+  transform-origin: right center;
+  transform: scaleX(0);
+}
+
+/* Keep an immediately legible (non-animated) snapshot in reduced-motion mode. */
+.g-app .y-instrument-glint { display: none; pointer-events: none; }
+
+@media (prefers-reduced-motion: no-preference) {
+  /* A restrained route marker: the route content remains readable immediately. */
+  .y-route-cue::after {
+    animation: y-route-draw 650ms var(--y-ease-out) both;
+  }
+  @keyframes y-route-draw {
+    0% { transform: scaleX(0); opacity: .92; }
+    58% { transform: scaleX(1); opacity: .75; }
+    100% { transform: scaleX(1); opacity: 0; }
+  }
+
+  /* Sections lift into place without fading out the financial information. */
+  .g-app .y-edition,
+  .g-app .y-page-heading {
+    animation: y-title-arrive var(--y-motion-route) var(--y-ease-out) both;
+    opacity: 1;
+  }
+  @keyframes y-title-arrive {
+    from { transform: translate3d(0,7px,0); }
+    to { transform: translate3d(0,0,0); }
+  }
+  .g-app .y-edition-square {
+    animation: y-seal-turn 700ms var(--y-ease-spring) both;
+  }
+  @keyframes y-seal-turn {
+    from { transform: rotate(-45deg) scale(.8); }
+    to { transform: rotate(45deg) scale(1); }
+  }
+  .g-app .y-page-kanji,
+  .g-app .y-edition-seal {
+    animation: y-stamp-arrive 590ms var(--y-ease-out) both;
+  }
+  @keyframes y-stamp-arrive {
+    from { transform: translate3d(8px,0,0); }
+    to { transform: translate3d(0,0,0); }
+  }
+
+  /* A fleeting line of light on the instrument, not across the amount itself. */
+  .g-app .y-instrument-glint {
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 2px;
+    width: 40%;
+    z-index: 2;
+    background: linear-gradient(90deg, transparent, #f5e4c8 55%, transparent);
+    transform: translate3d(-105%,0,0);
+    animation: y-instrument-scan 900ms 95ms var(--y-ease-out) both;
+  }
+  @keyframes y-instrument-scan {
+    0% { transform: translate3d(-105%,0,0); opacity: 0; }
+    35% { opacity: .95; }
+    100% { transform: translate3d(250%,0,0); opacity: 0; }
+  }
+  .g-app .y-instrument-top {
+    position: relative;
+  }
+  .g-app .y-live-dot {
+    animation: y-live-breathe 1.8s ease-out 1;
+  }
+  @keyframes y-live-breathe {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(154,211,181,.0); }
+    35% { box-shadow: 0 0 0 4px rgba(154,211,181,.18); }
+    55% { box-shadow: 0 0 0 6px rgba(154,211,181,0); }
+  }
+
+  /* The progress indicator grows; its label and actual percentage do not fade. */
+  .g-app .y-utilization-track > span {
+    transform-origin: left center;
+    animation: y-meter-reveal 780ms 150ms var(--y-ease-out) both;
+    transition: width 520ms var(--y-ease-out);
+  }
+  @keyframes y-meter-reveal {
+    from { transform: scaleX(.02); }
+    to { transform: scaleX(1); }
+  }
+
+  /* A single light marker travels from route to route along the bottom rail.
+     Inline --y-active-left only affects presentation; nav buttons stay in place. */
+  .g-app .g-bottom-nav::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: var(--y-active-left, 10%);
+    transform: translateX(-50%);
+    width: 22px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--g-cream);
+    z-index: 1;
+    pointer-events: none;
+    transition: left 380ms var(--y-ease-out), width 180ms ease;
+  }
+  .g-app .g-bottom-nav button.is-active::before { display: none; }
+  .g-app .g-bottom-nav button > span {
+    transition: transform var(--y-motion-responsive) var(--y-ease-spring);
+  }
+  .g-app .g-bottom-nav button.is-active > span {
+    animation: y-nav-settle 340ms var(--y-ease-spring) both;
+  }
+  .g-app .g-bottom-nav button.is-active::before {
+    animation: y-nav-mark 340ms var(--y-ease-out) both;
+  }
+  @keyframes y-nav-settle {
+    0% { transform: translate3d(0,3px,0) scale(.90); }
+    75% { transform: translate3d(0,-1px,0) scale(1.07); }
+    100% { transform: translate3d(0,0,0) scale(1); }
+  }
+  @keyframes y-nav-mark {
+    0% { transform: translateX(-50%) scaleX(.18); }
+    100% { transform: translateX(-50%) scaleX(1); }
+  }
+
+  /* Month selection moves a label, not its entire financial dashboard. */
+  .g-app .y-month-label {
+    animation: y-month-settle 280ms var(--y-ease-out) both;
+  }
+  @keyframes y-month-settle {
+    from { transform: translate3d(0,4px,0); }
+    to { transform: translate3d(0,0,0); }
+  }
+  .g-app .g-month-bar > button svg {
+    transition: transform var(--y-motion-responsive) var(--y-ease-spring);
+  }
+
+  /* Responsive actions never postpone clicks, including touch interactions. */
+  .g-app .y-action-bar > button {
+    transition: background var(--y-motion-responsive) ease,
+      filter var(--y-motion-responsive) ease,
+      transform var(--y-motion-press) var(--y-ease-out);
+  }
+  .g-app .y-action-bar > button svg,
+  .g-app .y-due-row button svg {
+    transition: transform var(--y-motion-responsive) var(--y-ease-spring);
+  }
+  .g-app :is(.y-action-bar > button,.g-primary-action,.g-secondary-action,.g-month-bar > button):active {
+    transform: scale(.975);
+  }
+  .g-app .g-bottom-nav button:active > span {
+    transform: scale(.87);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .g-app .y-action-bar > button:hover svg { transform: translate3d(3px,-2px,0) rotate(-8deg); }
+    .g-app .y-due-row button:hover svg { transform: translate3d(2px,-1px,0); }
+    .g-app .g-month-bar > button:first-child:hover svg { transform: translateX(-3px); }
+    .g-app .g-month-bar > button:last-child:hover svg { transform: translateX(3px); }
+    .g-app .g-bottom-nav button:hover:not(.is-active) > span { transform: translateY(-2px); }
+    .g-app .y-receipt .g-movement,
+    .g-app .y-ledger-book .g-movement { transition: background var(--y-motion-responsive) ease; }
+    .g-app .y-receipt .g-movement:hover,
+    .g-app .y-ledger-book .g-movement:hover { background: var(--g-navy-soft); }
+  }
+
+  /* Dialog entrance stays usable throughout; foreground text is never transparent. */
+  .g-app .g-sheet-backdrop,
+  .finance-modal-backdrop,
+  .finance-drawer-backdrop,
+  .product-overlay {
+    animation: y-overlay-arrive 190ms ease-out both;
+  }
+  @keyframes y-overlay-arrive {
+    from { opacity: .88; }
+    to { opacity: 1; }
+  }
+  .g-app .g-sheet { animation: y-panel-arrive 340ms var(--y-ease-out) both; }
+  .finance-drawer,.product-panel { animation: y-drawer-arrive 340ms var(--y-ease-out) both; }
+  @keyframes y-panel-arrive {
+    from { transform: translate3d(0,20px,0) scale(.995); }
+    to { transform: translate3d(0,0,0) scale(1); }
+  }
+  @keyframes y-drawer-arrive {
+    from { transform: translate3d(22px,0,0); }
+    to { transform: translate3d(0,0,0); }
+  }
+
+  /* Notifications appear without a blocking invisible overlay. */
+  .g-app .g-toast {
+    animation: y-toast-pop 280ms var(--y-ease-spring) both;
+  }
+  @keyframes y-toast-pop {
+    /* Preserve translateX(-50%): the fixed status toast is centered. */
+    from { transform: translate3d(-50%,10px,0) scale(.985); }
+    to { transform: translate3d(-50%,0,0) scale(1); }
+  }
+  .month-integrity-toast {
+    animation: y-integrity-pop 280ms var(--y-ease-out) both;
+  }
+  @keyframes y-integrity-pop {
+    from { transform: translate3d(-50%,8px,0); }
+    to { transform: translate3d(-50%,0,0); }
+  }
+}
+
+/* Accessibility and lower-power devices: no continuous or required motion. */
+@media (prefers-reduced-motion: reduce) {
+  .g-app .y-route-cue,
+  .g-app .y-instrument-glint { display: none !important; }
+  .g-app .y-utilization-track > span { transition: none !important; }
+  .g-app .y-live-dot { animation: none !important; box-shadow: none !important; }
+  .g-app :is(.y-edition,.y-page-heading,.g-bottom-nav button > span,.y-month-label),
+  .g-app .g-sheet,
+  .finance-drawer,.product-panel,.product-overlay,.finance-drawer-backdrop,.finance-modal-backdrop {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+/* Android PWA performance: avoid compositing large translucent backdrops.
+   All important backgrounds are already opaque, so this is visually stable. */
+@media (max-width: 760px), (pointer: coarse) {
+  .g-app .g-topbar {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+  .g-app .g-sheet-backdrop,
+  .finance-modal-backdrop,
+  .finance-drawer-backdrop,
+  .product-overlay {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+}

@@ -1,7 +1,7 @@
 {
-  "name": "Mi Presupuesto",
-  "short_name": "Presupuesto",
-  "description": "Control personal de ingresos, gastos, presupuestos y préstamo.",
+  "name": "Finance",
+  "short_name": "Finance",
+  "description": "Finance by YORU: registro personal de ingresos, gastos y presupuesto.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

@@ -22,6 +22,8 @@ import './primary-biometric.css';
 import './financial-integrity.css';
 import './god.css';
 import './yoru-atelier.css';
+import './yoru-motion.css';
+import './finance-trend.css';
 
 import { registerServiceWorker } from './registerServiceWorker';
 
@@ -38,7 +40,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Safe name="Puente de datos"><FinancialDataBridge /></Safe>
         <Safe name="Sincronización automática"><AutoCloudSync /></Safe>
 
-        <ComponentBoundary name="Mi Presupuesto" fallback={null}>
+        <ComponentBoundary name="Finance" fallback={null}>
           <GodApp />
         </ComponentBoundary>
 

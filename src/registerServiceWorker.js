@@ -1,7 +1,7 @@
 export function registerServiceWorker() {
   if (!('serviceWorker' in navigator)) return;
 
-  window.addEventListener('load', async () => {
+  async function initializeServiceWorker() {
     try {
       const registration = await navigator.serviceWorker.register('/sw.js', {
         updateViaCache: 'none'
@@ -33,5 +33,11 @@ export function registerServiceWorker() {
     } catch (error) {
       console.error('No se pudo registrar el service worker:', error);
     }
-  });
+  }
+
+  if (document.readyState === 'complete') {
+    void initializeServiceWorker();
+  } else {
+    window.addEventListener('load', initializeServiceWorker, { once: true });
+  }
 }
