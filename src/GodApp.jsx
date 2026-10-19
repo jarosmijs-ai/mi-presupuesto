@@ -449,11 +449,14 @@ export default function GodApp() {
           <span className="g-brand-mark">Q</span>
           <div>
             <strong>Mi Presupuesto</strong>
-            <small>夜の家計 / TU DINERO EN CALMA</small>
+            <small>夜帳 / YORU LEDGER</small>
           </div>
         </div>
 
         <div className="g-top-actions">
+          <button type="button" className="g-add-button" onClick={() => setSheet({ type: 'expense' })} aria-label="Registrar gasto">
+            <Plus size={19} />
+          </button>
           <button
             type="button"
             className="g-icon-button"
@@ -575,15 +578,6 @@ export default function GodApp() {
         })}
       </nav>
 
-      <button
-        type="button"
-        className="g-fab"
-        onClick={() => setSheet({ type: 'expense' })}
-        aria-label="Registrar movimiento"
-      >
-        <Plus size={24} />
-      </button>
-
       {sheet && (
         <MovementSheet
           type={sheet.type}
@@ -617,7 +611,9 @@ function HomeView({
   recent, loanRows, fixedRows, onAddExpense, onAddIncome, onOpenMoves,
   onOpenBudget, onOpenLoan, onMarkLoan, onUndoLoan, onMarkRecurring
 }) {
-  const positive = balance >= 0;
+  const positive = balance > 0;
+  const negative = balance < 0;
+  const hasMonthlyActivity = totalIncome !== 0 || totalExpense !== 0;
   const paidLoan = loanRows.filter((row) => row.expense).length;
   const pendingFixed = fixedRows.filter((row) => !row.expense).slice(0, 3);
   const displayRatio = Math.max(0, Math.min(100, spendRatio));
@@ -641,9 +637,9 @@ function HomeView({
           <div className="y-balance-block">
             <span className="y-instrument-label">BALANCE NETO MENSUAL</span>
             <h1>{formatMoney(balance)}</h1>
-            <p className={positive ? 'y-good' : 'y-caution'}>
-              {positive ? <TrendingUp size={15}/> : <TrendingDown size={15}/>}
-              {positive ? 'Ingresos por encima de gastos' : 'Gastos por encima de ingresos'}
+            <p className={positive ? 'y-good' : negative ? 'y-caution' : 'y-neutral'}>
+              {positive ? <TrendingUp size={15}/> : negative ? <TrendingDown size={15}/> : <CircleDollarSign size={15}/>}
+              {!hasMonthlyActivity ? 'Sin movimientos registrados este mes' : positive ? 'Ingresos por encima de gastos' : negative ? 'Gastos por encima de ingresos' : 'Ingresos y gastos equilibrados'}
             </p>
           </div>
           <div className="y-instrument-serial" aria-hidden="true">
@@ -651,7 +647,7 @@ function HomeView({
           </div>
         </div>
         <div className="y-utilization">
-          <div><span>CONSUMO DE INGRESOS</span><strong>{Math.round(spendRatio)}<small>%</small></strong></div>
+          <div><span>CONSUMO DE INGRESOS</span><strong>{totalIncome > 0 ? <>{Math.round(spendRatio)}<small>%</small></> : '—'}</strong></div>
           <div className="y-utilization-track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(displayRatio)} aria-label="Porcentaje de ingresos utilizado">
             <span style={{width: displayRatio + '%'}} />
           </div>
@@ -660,7 +656,7 @@ function HomeView({
         <div className="y-financial-strip">
           <div><span><ArrowDownLeft size={14}/> 01 · INGRESOS</span><strong>{formatMoney(totalIncome)}</strong></div>
           <div><span><ArrowUpRight size={14}/> 02 · GASTOS</span><strong>{formatMoney(totalExpense)}</strong></div>
-          <div><span><WalletCards size={14}/> 03 · PRESUPUESTO LIBRE</span><strong>{formatMoney(budgetRemaining)}</strong></div>
+          <div><span><WalletCards size={14}/> 03 · MARGEN PRESUPUESTARIO</span><strong>{formatMoney(budgetRemaining)}</strong></div>
         </div>
       </section>
 
@@ -824,7 +820,7 @@ function BudgetView({ budgets, expenses, formatMoney, totalBudget, totalExpense,
       <div className="y-budget-top-action"><span>CONTROL POR CATEGORÍA</span><button type="button" className="g-primary-action" onClick={onAddExpense}><Plus size={17}/>Registrar gasto</button></div>
 
       <section className="g-budget-summary y-budget-totals">
-        <div><span>Planificado</span><strong>{formatMoney(totalBudget)}</strong></div>
+        <div><span>Límite mensual</span><strong>{formatMoney(totalBudget)}</strong></div>
         <div><span>Consumido</span><strong>{formatMoney(totalExpense)}</strong></div>
         <div><span>Disponible</span><strong>{formatMoney(Math.max(0, totalBudget - totalExpense))}</strong></div>
       </section>
