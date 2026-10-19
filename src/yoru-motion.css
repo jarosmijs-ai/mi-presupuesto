@@ -116,7 +116,23 @@
     to { transform: scaleX(1); }
   }
 
-  /* Immediate and tactile navigation, without moving the fixed nav bar. */
+  /* A single light marker travels from route to route along the bottom rail.
+     Inline --y-active-left only affects presentation; nav buttons stay in place. */
+  .g-app .g-bottom-nav::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: var(--y-active-left, 10%);
+    transform: translateX(-50%);
+    width: 22px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--g-cream);
+    z-index: 1;
+    pointer-events: none;
+    transition: left 380ms var(--y-ease-out), width 180ms ease;
+  }
+  .g-app .g-bottom-nav button.is-active::before { display: none; }
   .g-app .g-bottom-nav button > span {
     transition: transform var(--y-motion-responsive) var(--y-ease-spring);
   }
