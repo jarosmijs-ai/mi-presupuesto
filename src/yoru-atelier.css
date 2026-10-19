@@ -1006,3 +1006,16 @@ html[data-theme='light'] .g-bottom-nav{background:rgba(249,247,241,.985)!importa
   animation:none!important;opacity:1!important;transform:none!important;
  }
 }
+
+/* Monthly integrity portal belongs to the More tools route, never to overlays. */
+#month-close-host{width:100%;margin:12px 0 0;}
+#month-close-host[hidden]{display:none!important;}
+.y-month-close-heading{
+ display:flex;align-items:center;justify-content:space-between;gap:12px;
+ margin:26px 0 9px;padding-bottom:11px;
+ border-bottom:1px solid var(--g-line-strong);
+ color:var(--g-cream);
+ font:500 10px var(--y-data);letter-spacing:.07em;
+}
+.y-month-close-heading small{color:var(--g-muted);font:500 10px var(--y-data);}
+@media(max-width:620px){#month-close-host{width:100%;margin:9px 0 0;}}

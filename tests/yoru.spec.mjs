@@ -26,6 +26,8 @@ test('navigation: fits viewport, no obstructive duplicate launchers',async ({pag
   expect(m.bottom).toBeLessThanOrEqual(m.height+2);
   expect(m.top).toBeGreaterThanOrEqual(0);
   expect(m.floaters.every(x=>x==='none')).toBeTruthy();
+  if(section!=='Más') await expect(page.locator('#month-close-host')).toBeHidden();
+  else await expect(page.locator('#month-close-host')).toBeVisible();
  }
  await page.screenshot({path:'test-artifacts/yoru-'+test.info().project.name+'-more.png',fullPage:true});
 });

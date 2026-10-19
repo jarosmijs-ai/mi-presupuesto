@@ -557,6 +557,13 @@ export default function GodApp() {
             onLaunchSettings={() => launch('.product-settings-button')}
           />
         )}
+        {section === 'more' && (
+          <div className="y-month-close-heading">
+            <span>04 / ADMINISTRACIÓN DEL MES</span>
+            <small>CIERRE LOCAL</small>
+          </div>
+        )}
+        <div id="month-close-host" hidden={section !== 'more'} />
       </main>
 
       <nav className="g-bottom-nav" aria-label="Navegación principal">
