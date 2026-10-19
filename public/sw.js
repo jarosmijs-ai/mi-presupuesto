@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'mi-presupuesto-yoru-quality-v1';
+const CACHE_VERSION = 'finance-established-v2';
 
 const APP_SHELL = [
   '/',
