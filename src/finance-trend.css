@@ -1,0 +1,122 @@
+/* YORU Established / Finance Trend
+   Deliberately separate from legacy styles. Uses existing theme tokens.
+   Numeric summaries are never animated or obscured. */
+.y-trend{
+  margin: 2px 0 27px;
+  border:1px solid var(--g-line-strong);
+  border-radius:2px 14px 2px 2px;
+  background:var(--y-panel);
+  color:var(--g-ink);
+  padding:21px clamp(13px,2.6vw,24px) 15px;
+  overflow:hidden;
+  min-width:0;
+}
+.y-trend-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.y-trend-kicker{
+  color:var(--g-cream);
+  font:500 10px var(--y-data);
+  letter-spacing:.065em;
+}
+.y-trend-kicker span{color:var(--g-muted)}
+.y-trend-heading h2{
+  font:600 clamp(20px,3.5vw,29px)/1.14 var(--y-display);
+  letter-spacing:-.05em;
+  margin:9px 0 6px;
+}
+.y-trend-heading h2 em{font:italic 1.1em var(--y-literary);color:var(--g-cream)}
+.y-trend-heading p{color:var(--g-muted);font:400 12px/1.55 var(--y-body);margin:0}
+.y-trend-range{
+  flex:none;color:var(--g-muted);white-space:nowrap;
+  font:500 10px var(--y-data);letter-spacing:.03em;
+  border:1px solid var(--g-line);border-radius:4px;padding:6px 7px;
+}
+.y-trend-details{
+  display:grid;
+  grid-template-columns:minmax(0,1.15fr) minmax(0,1fr) minmax(0,1fr);
+  margin:21px 0 7px;min-height:54px;
+  border-top:1px solid var(--g-line);border-bottom:1px solid var(--g-line);
+}
+.y-trend-details>div{
+  min-width:0;display:flex;flex-direction:column;align-items:flex-start;
+  justify-content:center;gap:5px;padding:12px 11px;
+}
+.y-trend-details>div:first-child{padding-left:0}
+.y-trend-details>div+div{border-left:1px solid var(--g-line)}
+.y-trend-details span{font:500 9px/1.4 var(--y-data);color:var(--g-muted);letter-spacing:.05em}
+.y-trend-details strong{font:500 clamp(12px,2.2vw,18px)/1.2 var(--y-data);letter-spacing:-.055em;color:var(--g-ink);overflow-wrap:anywhere}
+.y-trend-selected strong{font:600 14px var(--y-display);text-transform:capitalize;letter-spacing:-.02em}
+.y-trend-metric.is-income strong{color:#a4d6b9}
+.y-trend-metric.is-expense strong{color:#e7a39b}
+.y-trend-plot{width:100%;padding:5px 0 0}
+.y-trend-plot svg{display:block;width:100%;height:auto;aspect-ratio:612/183;overflow:visible}
+.y-trend-grid{stroke:var(--g-line-strong);stroke-width:1;stroke-dasharray:2 7}
+.y-trend-axis{fill:var(--g-muted);font:500 10px var(--y-data)}
+.y-trend-line{fill:none;stroke-width:3.1;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.y-trend-line.is-income{stroke:#93d1b3}
+.y-trend-line.is-expense{stroke:#e9a096}
+.y-trend-area{pointer-events:none}
+.y-trend-crosshair{stroke:var(--g-line-strong);stroke-width:1;stroke-dasharray:3 5}
+.y-trend-dot{stroke:var(--y-panel);stroke-width:3;vector-effect:non-scaling-stroke}
+.y-trend-dot.is-income{fill:#a6e1c0}
+.y-trend-dot.is-expense{fill:#efafa4}
+.y-trend-months{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:2px}
+.y-trend-months button{
+  border:0;border-top:1px solid transparent;border-radius:3px;
+  background:transparent;color:var(--g-muted);
+  min-height:38px;min-width:0;text-align:center;cursor:pointer;
+  font:500 11px var(--y-data);text-transform:capitalize;
+  transition:background 180ms ease,color 180ms ease,border-color 180ms ease;
+}
+.y-trend-months button[aria-pressed='true']{
+  background:var(--y-panel-raised);color:var(--g-cream);
+  border-top-color:var(--g-cream)
+}
+.y-trend-months button:focus-visible{outline:2px solid var(--g-cream);outline-offset:1px}
+.y-trend-months button:active{background:var(--g-navy-soft)}
+.y-trend-footer{
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  border-top:1px solid var(--g-line);padding-top:13px;margin-top:8px;
+}
+.y-trend-footer span{display:inline-flex;align-items:center;gap:6px;color:var(--g-ink);font:500 11px var(--y-body)}
+.y-trend-footer i{width:13px;height:3px;display:inline-block;border-radius:4px}
+.y-trend-footer i.is-income{background:#93d1b3}
+.y-trend-footer i.is-expense{background:#e9a096}
+.y-trend-footer small{font:400 10px var(--y-body);color:var(--g-muted);margin-left:auto}
+.y-trend-empty{
+  margin-top:16px;padding:24px 16px;
+  border:1px dashed var(--g-line-strong);
+  color:var(--g-muted);font:400 12px/1.6 var(--y-body);
+  text-align:center;
+}
+@media(max-width:620px){
+  .y-trend{margin:2px 0 21px;padding:15px 12px 12px}
+  .y-trend-heading h2{font-size:clamp(20px,5.8vw,25px)}
+  .y-trend-heading p{font-size:11px}
+  .y-trend-range{font-size:8px;padding:4px}
+  .y-trend-details{grid-template-columns:1fr 1fr;margin:14px 0 8px}
+  .y-trend-selected{grid-column:1/-1;border-bottom:1px solid var(--g-line)}
+  .y-trend-details>div{padding:9px 10px}
+  .y-trend-details>div:first-child{padding-left:10px}
+  .y-trend-details>div:nth-child(2){border-left:0}
+  .y-trend-details span{font-size:9px}
+  .y-trend-details strong{font-size:13px}
+  .y-trend-selected strong{font-size:14px}
+  .y-trend-plot svg{min-height:125px}
+  .y-trend-months button{min-height:43px;font-size:10px}
+  .y-trend-footer small{width:100%;margin:0;font-size:10px}
+}
+html[data-theme='light'] .y-trend-metric.is-income strong{color:#276a4f}
+html[data-theme='light'] .y-trend-metric.is-expense strong{color:#a85554}
+@media(prefers-reduced-motion:no-preference){
+  .y-trend-line{stroke-dasharray:100;stroke-dashoffset:100;animation:y-trend-stroke 1.1s cubic-bezier(.22,.82,.26,1) forwards}
+  .y-trend-line.is-expense{animation-delay:120ms}
+  .y-trend-area{animation:y-trend-wash 800ms ease-out both;animation-delay:300ms}
+  .y-trend-crosshair,.y-trend-dot{transition:all 340ms cubic-bezier(.2,.8,.2,1)}
+  @keyframes y-trend-stroke{to{stroke-dashoffset:0}}
+  @keyframes y-trend-wash{from{opacity:0}to{opacity:1}}
+}
+@media(prefers-reduced-motion:reduce){
+  .y-trend-line{stroke-dasharray:none!important;stroke-dashoffset:0!important;animation:none!important}
+  .y-trend-area,.y-trend-crosshair,.y-trend-dot{transition:none!important;animation:none!important}
+  .y-trend-months button{transition:none!important}
+}
