@@ -664,3 +664,20 @@ html[data-theme='light'] .g-app .y-budget-top-action .g-primary-action {
 @media(prefers-reduced-motion:reduce){
   .g-bottom-nav,.g-bottom-nav *{transition:none !important;animation:none !important;}
 }
+
+
+/* Desktop retains a discreet bounded dock; full-width navigation is mobile-only. */
+@media(min-width:761px){
+  .g-bottom-nav {
+    left:50% !important;right:auto !important;
+    bottom:max(12px,env(safe-area-inset-bottom)) !important;
+    transform:translateX(-50%) !important;
+    width:min(510px,calc(100% - 24px)) !important;
+    max-width:510px !important;
+    min-height:62px !important;
+    padding:5px !important;
+    border:1px solid var(--g-line-strong) !important;
+    border-radius:12px !important;
+  }
+  .g-bottom-nav button {min-height:50px !important;}
+}
