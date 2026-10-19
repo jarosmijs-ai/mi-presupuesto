@@ -22,6 +22,7 @@ import './primary-biometric.css';
 import './financial-integrity.css';
 import './god.css';
 import './yoru-atelier.css';
+import './yoru-motion.css';
 
 import { registerServiceWorker } from './registerServiceWorker';
 
