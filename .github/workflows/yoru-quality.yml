@@ -1,9 +1,9 @@
 name: YORU Product Quality
 on:
   push:
-    branches: [main, established/yoru-final-qa]
+    branches: [main, established/yoru-final-qa, established/yoru-motion-polish]
   pull_request:
-    branches: [main]
+    branches: [main, established/yoru-final-qa]
 permissions:
   contents: read
 jobs:
