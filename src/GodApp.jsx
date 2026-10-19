@@ -446,10 +446,10 @@ export default function GodApp() {
 
       <header className="g-topbar">
         <div className="g-brand">
-          <span className="g-brand-mark">Q</span>
+          <span className="g-brand-mark" aria-hidden="true">夜</span>
           <div>
             <strong>Mi Presupuesto</strong>
-            <small>夜帳 / YORU LEDGER</small>
+            <small>YORU <span aria-hidden="true">/ 夜帳</span></small>
           </div>
         </div>
 
@@ -618,21 +618,21 @@ function HomeView({
     <div className="g-stack y-shell">
       <header className="y-edition">
         <div className="y-edition-copy">
-          <div className="y-eyebrow"><span className="y-edition-square" /> PERSONAL FINANCE JOURNAL <span className="y-separator">/</span> 01</div>
-          <h2>Tu dinero.<br/><em>A tu ritmo.</em></h2>
-          <p>Una lectura clara de tu mes, sin ruido y sin distracciones.</p>
+          <div className="y-eyebrow"><span className="y-edition-square" /> 01 / VISTA GENERAL <span className="y-separator">夜</span></div>
+          <h2>Tu mes, <em>en claro.</em></h2>
+          <p>Control financiero sin ruido.</p>
         </div>
-        <div className="y-edition-seal" aria-hidden="true"><span>家計簿</span><small>YORU<br/>EDITION</small></div>
+        <div className="y-edition-seal" aria-hidden="true"><span>家計簿</span><small>VOL.01</small></div>
       </header>
 
       <section className="y-instrument" aria-label="Resumen financiero mensual">
         <div className="y-instrument-top">
-          <span><span className="y-live-dot" aria-hidden="true"/> ESTADO DEL MES <span className="y-micro-muted">/ 月次収支</span></span>
+          <span><span className="y-live-dot" aria-hidden="true"/> RESUMEN MENSUAL <span className="y-micro-muted">/ 月次</span></span>
           <span className="y-local-tag"><LockKeyhole size={12}/> DATOS EN TU DISPOSITIVO</span>
         </div>
         <div className="y-instrument-body">
           <div className="y-balance-block">
-            <span className="y-instrument-label">BALANCE NETO MENSUAL</span>
+            <span className="y-instrument-label">FLUJO NETO · ESTE MES</span>
             <h1>{formatMoney(balance)}</h1>
             <p className={positive ? 'y-good' : negative ? 'y-caution' : 'y-neutral'}>
               {positive ? <TrendingUp size={15}/> : negative ? <TrendingDown size={15}/> : <CircleDollarSign size={15}/>}
@@ -644,7 +644,7 @@ function HomeView({
           </div>
         </div>
         <div className="y-utilization">
-          <div><span>CONSUMO DE INGRESOS</span><strong>{totalIncome > 0 ? <>{Math.round(spendRatio)}<small>%</small></> : '—'}</strong></div>
+          <div><span>PORCENTAJE DE INGRESOS GASTADO</span><strong>{totalIncome > 0 ? <>{Math.round(spendRatio)}<small>%</small></> : '—'}</strong></div>
           <div className="y-utilization-track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(displayRatio)} aria-label="Porcentaje de ingresos utilizado">
             <span style={{width: displayRatio + '%'}} />
           </div>
@@ -738,7 +738,7 @@ function MovementsView({ month, incomes, expenses, formatMoney, onAddIncome, onA
   return (
     <div className="g-stack y-page y-movements-page">
       <header className="y-page-heading">
-        <div className="y-page-kicker"><span>02</span> / MOVEMENT ARCHIVE <span className="y-jp-annotation">入出金</span></div>
+        <div className="y-page-kicker"><span>02</span> / HISTORIAL <span className="y-jp-annotation">入出金</span></div>
         <div className="y-page-headline"><div><h1>El registro<span>.</span></h1><p>{formatMonthLabel(month)} · Todos tus ingresos y gastos, en orden.</p></div><span className="y-page-kanji" aria-hidden="true">記帳</span></div>
       </header>
 
@@ -811,15 +811,15 @@ function BudgetView({ budgets, expenses, formatMoney, totalBudget, totalExpense,
   return (
     <div className="g-stack y-page y-budget-page">
       <header className="y-page-heading">
-        <div className="y-page-kicker"><span>03</span> / MONTHLY PLAN <span className="y-jp-annotation">予算</span></div>
-        <div className="y-page-headline"><div><h1>Tu plan<span>.</span></h1><p>El límite lo decides tú. El seguimiento lo hacemos simple.</p></div><span className="y-page-kanji" aria-hidden="true">計画</span></div>
+        <div className="y-page-kicker"><span>03</span> / PRESUPUESTO <span className="y-jp-annotation">予算</span></div>
+        <div className="y-page-headline"><div><h1>Cada quetzal<span>.</span></h1><p>Distribución y límites del mes.</p></div><span className="y-page-kanji" aria-hidden="true">計画</span></div>
       </header>
-      <div className="y-budget-top-action"><span>CONTROL POR CATEGORÍA</span><button type="button" className="g-primary-action" onClick={onAddExpense}><Plus size={17}/>Registrar gasto</button></div>
+      <div className="y-budget-top-action"><span>EDICIÓN DIRECTA / 予算</span><button type="button" className="g-primary-action" onClick={onAddExpense}><Plus size={17}/>Añadir gasto</button></div>
 
       <section className="g-budget-summary y-budget-totals">
         <div><span>Límite mensual</span><strong>{formatMoney(totalBudget)}</strong></div>
         <div><span>Consumido</span><strong>{formatMoney(totalExpense)}</strong></div>
-        <div><span>Disponible</span><strong>{formatMoney(Math.max(0, totalBudget - totalExpense))}</strong></div>
+        <div><span>Restante</span><strong>{formatMoney(totalBudget - totalExpense)}</strong></div>
       </section>
 
       <div className="g-budget-toolbar">
@@ -827,7 +827,7 @@ function BudgetView({ budgets, expenses, formatMoney, totalBudget, totalExpense,
         <button type="button" onClick={onReset}><RotateCcw size={16} />Restablecer</button>
       </div>
 
-      <div className="y-budget-section-rule"><span>DESGLOSE DE CATEGORÍAS</span><span>EDICIÓN DIRECTA</span></div>
+      <div className="y-budget-section-rule"><span>CATEGORÍAS / {Object.entries(budgets).length}</span><span>GASTADO · LÍMITE</span></div>
       <section className="g-budget-grid">
         {Object.entries(budgets).map(([category, budget], index) => {
           const used = spent(category);
@@ -839,17 +839,17 @@ function BudgetView({ budgets, expenses, formatMoney, totalBudget, totalExpense,
               <div className="g-budget-card-head">
                 <span className="y-budget-index">{String(index + 1).padStart(2, "0")}</span>
                 <span className="g-soft-icon"><Icon size={18} /></span>
-                <div><strong>{category}</strong><small>{Math.round(ratio)}% utilizado</small></div>
-                <span className={ratio > 100 ? 'g-budget-state is-over' : 'g-budget-state'}>{ratio > 100 ? 'Excedido' : 'En control'}</span>
+                <div><strong>{category}</strong><small>{Number(budget) > 0 ? Math.round(ratio) + "% del límite utilizado" : used > 0 ? "Gasto sin límite definido" : "Sin límite asignado"}</small></div>
+                <span className={used > Number(budget) ? 'g-budget-state is-over' : 'g-budget-state'}>{used > Number(budget) ? 'Excedido' : 'En control'}</span>
               </div>
               <div className="g-budget-numbers">
                 <strong>{formatMoney(used)}</strong>
-                <span>de {formatMoney(budget)}</span>
+                <span>gastado este mes</span>
               </div>
               <div className="g-progress"><span style={{ width: `${Math.min(100, ratio)}%` }} /></div>
               <label className="g-budget-edit">
-                <span>Límite mensual</span>
-                <div><b>Q</b><input type="number" min="0" step="50" value={budget} onChange={(event) => onChange(category, event.target.value)} /></div>
+                <span>LÍMITE EDITABLE</span>
+                <div><b>Q</b><input aria-label={`Límite mensual para ${category}`} type="number" min="0" step="50" value={budget} onChange={(event) => onChange(category, event.target.value)} /></div>
               </label>
             </article>
           );
@@ -877,7 +877,7 @@ function LoanView({ loan, breakdown, rows, formatMoney, onMark, onUndo, onSaveLo
   return (
     <div className="g-stack y-page y-loan-page">
       <header className="y-page-heading">
-        <div className="y-page-kicker"><span>04</span> / LIABILITY TRACKER <span className="y-jp-annotation">返済</span></div>
+        <div className="y-page-kicker"><span>04</span> / PRÉSTAMO <span className="y-jp-annotation">返済</span></div>
         <div className="y-page-headline"><div><h1>Ruta a cero<span>.</span></h1><p>Cuotas regulares, saldo y simulación de abonos a capital.</p></div><span className="y-page-kanji" aria-hidden="true">返済</span></div>
       </header>
       <div className="y-loan-top-action"><span>CONTROL DE PRÉSTAMO</span><button type="button" className="g-secondary-action" onClick={() => setShowSettings((value) => !value)}><Settings size={17}/>{showSettings ? 'Cerrar ajustes' : 'Ajustar préstamo'}</button></div>
@@ -942,7 +942,7 @@ function MoreView({ onLaunchPlan, onLaunchSettings }) {
   return (
     <div className="g-stack y-page y-more-page">
       <header className="y-page-heading">
-        <div className="y-page-kicker"><span>05</span> / PERSONAL CONTROL DESK <span className="y-jp-annotation">設定</span></div>
+        <div className="y-page-kicker"><span>05</span> / HERRAMIENTAS <span className="y-jp-annotation">設定</span></div>
         <div className="y-page-headline">
           <div><h1>Tu espacio<span>.</span></h1><p>Herramientas, preferencias y control de tu información.</p></div>
           <span className="y-page-kanji" aria-hidden="true">道具</span>
