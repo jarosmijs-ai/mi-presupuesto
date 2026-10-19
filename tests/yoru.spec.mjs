@@ -45,6 +45,7 @@ test('expense, budget editing and month persistence',async ({page})=>{
  await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('monthly-budgets')||'{}')['2026-10']?.Gasolina)).toBe(1350);
  await page.reload();await nav(page,'Presupuesto');
  await expect(page.getByRole('spinbutton',{name:'Límite mensual para Gasolina'})).toHaveValue('1350');
+ await page.waitForTimeout(550);
  await page.screenshot({path:'test-artifacts/yoru-'+test.info().project.name+'-budget.png',fullPage:true});
 });
 test('income edit and delete are still functional',async ({page})=>{

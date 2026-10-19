@@ -944,3 +944,65 @@ html[data-theme='light'] .g-bottom-nav{background:rgba(249,247,241,.985)!importa
 @media(prefers-reduced-motion:reduce){
  *,*::before,*::after{scroll-behavior:auto!important;}
 }
+
+
+/* YORU / ACCOUNT CLOSURE — financial status belongs to the same design system. */
+#month-close-host {
+ width:min(1000px,calc(100% - 36px));
+ margin:32px auto calc(75px + env(safe-area-inset-bottom));
+}
+.month-close-control,.month-close-control.is-closed{
+ display:flex;gap:14px;align-items:center;justify-content:space-between;
+ padding:15px 18px;
+ border:1px solid var(--g-line-strong);
+ border-left:2px solid var(--g-cream);
+ border-radius:3px 13px 3px 3px;
+ background:var(--y-panel)!important;
+ box-shadow:none;backdrop-filter:none;
+}
+.month-close-copy{min-width:0;}
+.month-close-copy>span{
+ font:500 10px var(--y-data);color:var(--g-cream)!important;
+ text-transform:uppercase;letter-spacing:.10em;
+ display:block;margin-bottom:5px;
+}
+.month-close-copy strong{
+ display:block;color:var(--g-ink)!important;
+ font:600 15px/1.2 var(--y-display);
+}
+.month-close-copy small{
+ display:block;margin-top:5px;color:var(--g-muted)!important;
+ font:400 11px/1.45 var(--y-body);
+}
+.month-close-button,.month-reopen-button{
+ flex:none;min-height:42px;padding:0 15px;
+ border:1px solid var(--g-line-strong);border-radius:4px;
+ background:var(--y-panel-raised);color:var(--g-ink);
+ font:600 12px var(--y-body);white-space:nowrap;
+}
+.month-close-button:hover,.month-reopen-button:hover{border-color:var(--g-cream);color:var(--g-cream);}
+.month-close-control.is-closed{border-left-color:var(--g-red);}
+.month-integrity-toast{
+ background:#202e35;color:#f1eee7;
+ border:1px solid var(--g-line-strong);
+ border-radius:5px;font:500 12px var(--y-body);
+}
+@media(max-width:620px){
+ #month-close-host{margin:24px auto calc(72px + env(safe-area-inset-bottom));width:calc(100% - 30px);}
+ .month-close-control,.month-close-control.is-closed{
+  flex-direction:row;gap:8px;align-items:center;
+  margin:0;padding:12px;border-radius:3px 11px 3px 3px;
+ }
+ .month-close-copy>span{font-size:9px;}
+ .month-close-copy strong{font-size:12px;}
+ .month-close-copy small{font-size:10px;line-height:1.38;}
+ .month-close-button,.month-reopen-button{
+  min-height:42px;min-width:94px;width:auto;padding:0 9px;font-size:11px;
+ }
+}
+/* We do not fade financial rows every time a route mounts: legibility wins. */
+@media(prefers-reduced-motion:no-preference){
+ .g-app :is(.g-budget-card,.g-loan-installments article,.g-attention-card,.g-tool-card){
+  animation:none!important;opacity:1!important;transform:none!important;
+ }
+}
