@@ -6,7 +6,7 @@
  * Typeface roles: Space Grotesk (display), DM Sans (body), IBM Plex Mono (data).
  */
 
-500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Serif+JP:wght@500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
 
 :root, html[data-theme='dark'] {
   color-scheme: dark;
