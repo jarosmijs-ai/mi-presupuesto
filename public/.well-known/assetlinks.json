@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.josh.yoru",
+      "sha256_cert_fingerprints": [
+        "45:70:E8:80:E6:6E:31:9E:9A:FB:61:DA:80:5D:15:12:CE:98:DF:B4:91:2A:4B:28:07:5E:A7:EB:7E:A2:02:19"
+      ]
+    }
+  }
+]
