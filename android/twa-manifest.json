@@ -1,0 +1,49 @@
+{
+  "packageId": "com.josh.yoru",
+  "host": "mi-presupuesto-ebon.vercel.app",
+  "name": "YORU",
+  "launcherName": "YORU",
+  "display": "standalone",
+  "themeColor": "#0c1118",
+  "themeColorDark": "#0c1118",
+  "navigationColor": "#0c1118",
+  "navigationColorDark": "#0c1118",
+  "navigationDividerColor": "#0c1118",
+  "navigationDividerColorDark": "#0c1118",
+  "backgroundColor": "#0c1118",
+  "enableNotifications": true,
+  "startUrl": "/",
+  "iconUrl": "https://mi-presupuesto-ebon.vercel.app/icons/icon-512.png",
+  "maskableIconUrl": "https://mi-presupuesto-ebon.vercel.app/icons/icon-maskable-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./yoru-android-signing.jks",
+    "alias": "yoru"
+  },
+  "appVersion": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://mi-presupuesto-ebon.vercel.app/manifest.webmanifest",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": false,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://mi-presupuesto-ebon.vercel.app/",
+  "minSdkVersion": 23,
+  "orientation": "portrait",
+  "fingerprints": [
+    {
+      "value": "45:70:E8:80:E6:6E:31:9E:9A:FB:61:DA:80:5D:15:12:CE:98:DF:B4:91:2A:4B:28:07:5E:A7:EB:7E:A2:02:19"
+    }
+  ],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "displayOverride": [
+    "standalone"
+  ]
+}
