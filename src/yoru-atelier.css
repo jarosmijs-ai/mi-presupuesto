@@ -1034,3 +1034,20 @@ html[data-theme='light'] .g-bottom-nav{background:rgba(249,247,241,.985)!importa
 @media(max-width:360px){
  .g-app .g-bottom-nav button small{font-size:9.8px;}
 }
+
+/* Functional QA correction: informational toasts never block controls.
+   Provide real scroll room above the fixed bottom navigation for month closure. */
+.month-integrity-toast{
+  pointer-events:none;
+  bottom:calc(76px + env(safe-area-inset-bottom));
+}
+#month-close-host{
+  padding-bottom:calc(96px + env(safe-area-inset-bottom));
+  scroll-margin-bottom:calc(96px + env(safe-area-inset-bottom));
+}
+@media(max-width:620px){
+ #month-close-host{
+  padding-bottom:calc(110px + env(safe-area-inset-bottom));
+  scroll-margin-bottom:calc(110px + env(safe-area-inset-bottom));
+ }
+}
