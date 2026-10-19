@@ -739,24 +739,39 @@ function MovementsView({ month, incomes, expenses, formatMoney, onAddIncome, onA
   ].sort((a, b) => String(b.date || '').localeCompare(String(a.date || ''))), [incomes, expenses]);
 
   const shown = filter === 'all' ? items : items.filter((item) => item.kind === filter);
+  const totalIn = incomes.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+  const totalOut = expenses.reduce((sum, item) => sum + Number(item.amount || 0), 0);
 
   return (
-    <div className="g-stack">
-      <div className="g-page-head">
-        <div><span className="g-kicker">MOVIMIENTOS</span><h1>Tu actividad</h1><p>{formatMonthLabel(month)}</p></div>
+    <div className="g-stack y-page y-movements-page">
+      <header className="y-page-heading">
+        <div className="y-page-kicker"><span>02</span> / MOVEMENT ARCHIVE <span className="y-jp-annotation">入出金</span></div>
+        <div className="y-page-headline"><div><h1>El registro<span>.</span></h1><p>{formatMonthLabel(month)} · Todos tus ingresos y gastos, en orden.</p></div><span className="y-page-kanji" aria-hidden="true">記帳</span></div>
+      </header>
+
+      <section className="y-activity-summary" aria-label="Resumen de movimientos">
+        <div className="y-activity-total"><small>ENTRADAS REGISTRADAS</small><strong>{items.length.toString().padStart(2, '0')}</strong></div>
+        <div><small>INGRESOS</small><strong className="y-good">{formatMoney(totalIn)}</strong></div>
+        <div><small>GASTOS</small><strong className="y-caution">{formatMoney(totalOut)}</strong></div>
+      </section>
+
+      <div className="y-ledger-toolbar">
+        <div className="g-segmented" aria-label="Filtrar movimientos">
+          {[['all', 'Todos'], ['income', 'Ingresos'], ['expense', 'Gastos']].map(([id, label]) => (
+            <button key={id} type="button" className={filter === id ? 'is-active' : ''} onClick={() => setFilter(id)}>{label}</button>
+          ))}
+        </div>
         <div className="g-dual-actions">
           <button type="button" className="g-secondary-action" onClick={onAddIncome}><ArrowDownLeft size={17} />Ingreso</button>
           <button type="button" className="g-primary-action" onClick={onAddExpense}><Plus size={17} />Gasto</button>
         </div>
       </div>
 
-      <div className="g-segmented">
-        {[['all', 'Todos'], ['income', 'Ingresos'], ['expense', 'Gastos']].map(([id, label]) => (
-          <button key={id} type="button" className={filter === id ? 'is-active' : ''} onClick={() => setFilter(id)}>{label}</button>
-        ))}
-      </div>
-
-      <MovementList items={shown} formatMoney={formatMoney} onEdit={onEdit} onDelete={onDelete} emptyText="No hay movimientos para este filtro." />
+      <section className="y-ledger-book" aria-label="Libro de movimientos">
+        <div className="y-ledger-book-head"><span>FECHA / CONCEPTO</span><span>IMPORTE</span></div>
+        <MovementList items={shown} formatMoney={formatMoney} onEdit={onEdit} onDelete={onDelete} emptyText="No hay movimientos para este filtro." />
+        <div className="y-ledger-book-foot"><span>REGISTRO LOCAL</span><span>YORU / 02</span></div>
+      </section>
     </div>
   );
 }
@@ -801,13 +816,14 @@ function BudgetView({ budgets, expenses, formatMoney, totalBudget, totalExpense,
     .reduce((sum, item) => sum + Number(item.amount || 0), 0);
 
   return (
-    <div className="g-stack">
-      <div className="g-page-head">
-        <div><span className="g-kicker">PLAN MENSUAL</span><h1>Presupuesto</h1><p>Define límites claros, no microgestión.</p></div>
-        <button type="button" className="g-primary-action" onClick={onAddExpense}><Plus size={17} />Gasto</button>
-      </div>
+    <div className="g-stack y-page y-budget-page">
+      <header className="y-page-heading">
+        <div className="y-page-kicker"><span>03</span> / MONTHLY PLAN <span className="y-jp-annotation">予算</span></div>
+        <div className="y-page-headline"><div><h1>Tu plan<span>.</span></h1><p>El límite lo decides tú. El seguimiento lo hacemos simple.</p></div><span className="y-page-kanji" aria-hidden="true">計画</span></div>
+      </header>
+      <div className="y-budget-top-action"><span>CONTROL POR CATEGORÍA</span><button type="button" className="g-primary-action" onClick={onAddExpense}><Plus size={17}/>Registrar gasto</button></div>
 
-      <section className="g-budget-summary">
+      <section className="g-budget-summary y-budget-totals">
         <div><span>Planificado</span><strong>{formatMoney(totalBudget)}</strong></div>
         <div><span>Consumido</span><strong>{formatMoney(totalExpense)}</strong></div>
         <div><span>Disponible</span><strong>{formatMoney(Math.max(0, totalBudget - totalExpense))}</strong></div>
@@ -818,8 +834,9 @@ function BudgetView({ budgets, expenses, formatMoney, totalBudget, totalExpense,
         <button type="button" onClick={onReset}><RotateCcw size={16} />Restablecer</button>
       </div>
 
+      <div className="y-budget-section-rule"><span>DESGLOSE DE CATEGORÍAS</span><span>EDICIÓN DIRECTA</span></div>
       <section className="g-budget-grid">
-        {Object.entries(budgets).map(([category, budget]) => {
+        {Object.entries(budgets).map(([category, budget], index) => {
           const used = spent(category);
           const ratio = Number(budget) > 0 ? (used / Number(budget)) * 100 : 0;
           const meta = CATEGORY_META[category] || CATEGORY_META.Otros;
@@ -827,6 +844,7 @@ function BudgetView({ budgets, expenses, formatMoney, totalBudget, totalExpense,
           return (
             <article className={`g-budget-card tone-${meta.tone}`} key={category}>
               <div className="g-budget-card-head">
+                <span className="y-budget-index">{String(index + 1).padStart(2, "0")}</span>
                 <span className="g-soft-icon"><Icon size={18} /></span>
                 <div><strong>{category}</strong><small>{Math.round(ratio)}% utilizado</small></div>
                 <span className={ratio > 100 ? 'g-budget-state is-over' : 'g-budget-state'}>{ratio > 100 ? 'Excedido' : 'En control'}</span>
@@ -864,11 +882,12 @@ function LoanView({ loan, breakdown, rows, formatMoney, onMark, onUndo, onSaveLo
   const scenarios = compareLoanScenarios(normalized);
 
   return (
-    <div className="g-stack">
-      <div className="g-page-head">
-        <div><span className="g-kicker">PRÉSTAMO</span><h1>Tu deuda, clara.</h1><p>Cuotas normales separadas de los abonos extra.</p></div>
-        <button type="button" className="g-secondary-action" onClick={() => setShowSettings((value) => !value)}><Settings size={17} />{showSettings ? 'Cerrar' : 'Ajustes'}</button>
-      </div>
+    <div className="g-stack y-page y-loan-page">
+      <header className="y-page-heading">
+        <div className="y-page-kicker"><span>04</span> / LIABILITY TRACKER <span className="y-jp-annotation">返済</span></div>
+        <div className="y-page-headline"><div><h1>Ruta a cero<span>.</span></h1><p>Cuotas regulares, saldo y simulación de abonos a capital.</p></div><span className="y-page-kanji" aria-hidden="true">返済</span></div>
+      </header>
+      <div className="y-loan-top-action"><span>CONTROL DE PRÉSTAMO</span><button type="button" className="g-secondary-action" onClick={() => setShowSettings((value) => !value)}><Settings size={17}/>{showSettings ? 'Cerrar ajustes' : 'Ajustar préstamo'}</button></div>
 
       <section className="g-loan-hero">
         <div><span>Saldo actual</span><h2>{formatMoney(loan.currentBalance)}</h2><small>{Number(loan.monthlyInterestRate || 0).toFixed(2)}% mensual</small></div>
@@ -928,7 +947,7 @@ function NumberField({ label, value, onChange, step = '0.01' }) {
 
 function MoreView({ onLaunchPlan, onLaunchSettings }) {
   return (
-    <div className="g-stack">
+    <div className="g-stack y-page y-more-page">
       <div className="g-page-head"><div><span className="g-kicker">MÁS</span><h1>Herramientas</h1><p>Todo lo avanzado, sin estorbarte en el día a día.</p></div></div>
 
       <section className="g-more-grid">
