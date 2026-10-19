@@ -1051,3 +1051,14 @@ html[data-theme='light'] .g-bottom-nav{background:rgba(249,247,241,.985)!importa
   scroll-margin-bottom:calc(110px + env(safe-area-inset-bottom));
  }
 }
+
+
+/* Editorial data must remain legible immediately after route transitions.
+   Motion lives in taps, focus, progress changes—not fading financial facts. */
+@media(prefers-reduced-motion:no-preference){
+ .g-app :is(.y-edition,.y-page-heading,.y-instrument,.y-dispatch,.y-history){
+  animation:none;
+  opacity:1;
+  transform:none;
+ }
+}
