@@ -567,7 +567,7 @@ export default function GodApp() {
         <div id="month-close-host" hidden={section !== 'more'} />
       </main>
 
-      <nav className="g-bottom-nav" aria-label="Navegación principal">
+      <nav className="g-bottom-nav" aria-label="Navegación principal" style={{ '--y-active-left': `${(NAV.findIndex((item) => item.id === section) + 0.5) * 20}%` }}>
         {NAV.map((item) => {
           const Icon = item.icon;
           const active = section === item.id;
