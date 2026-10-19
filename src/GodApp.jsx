@@ -218,7 +218,7 @@ export default function GodApp() {
   );
   const balance = totalIncome - totalExpense;
   const budgetTotal = Object.values(budgets).reduce((sum, value) => sum + Number(value || 0), 0);
-  const budgetRemaining = Math.max(0, budgetTotal - totalExpense);
+  const budgetRemaining = budgetTotal - totalExpense;
   const spendRatio = totalIncome > 0 ? (totalExpense / totalIncome) * 100 : 0;
 
   const breakdown = useMemo(() => getMonthlyLoanBreakdown({
@@ -267,7 +267,10 @@ export default function GodApp() {
   function openSection(id) {
     setSection(id);
     localStorage.setItem('god-section', id);
-    window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    window.requestAnimationFrame(() => window.scrollTo({
+      top: 0,
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'
+    }));
   }
 
   function moveMonth(delta) {
@@ -644,7 +647,7 @@ function HomeView({
           </div>
         </div>
         <div className="y-utilization">
-          <div><span>PORCENTAJE DE INGRESOS GASTADO</span><strong>{totalIncome > 0 ? <>{Math.round(spendRatio)}<small>%</small></> : '—'}</strong></div>
+          <div><span>INGRESOS UTILIZADOS</span><strong>{totalIncome > 0 ? <>{Math.round(spendRatio)}<small>%</small></> : '—'}</strong></div>
           <div className="y-utilization-track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(displayRatio)} aria-label="Porcentaje de ingresos utilizado">
             <span style={{width: displayRatio + '%'}} />
           </div>
