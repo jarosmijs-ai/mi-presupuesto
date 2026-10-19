@@ -1,7 +1,7 @@
 name: YORU Product Quality
 on:
   push:
-    branches: [main, established/yoru-final-qa, established/yoru-motion-polish, established/finance-final-release]
+    branches: [main, established/yoru-final-qa, established/yoru-motion-polish, established/finance-final-release, established/finance-editorial-charts-pdf]
   pull_request:
     branches: [main, established/yoru-final-qa]
 permissions:
