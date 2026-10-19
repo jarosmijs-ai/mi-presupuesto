@@ -87,7 +87,7 @@ test('More opens plans, settings and downloads local backup',async ({page})=>{
  const download=page.waitForEvent('download');
  await page.getByRole('button',{name:/Crear respaldo/}).click();
  const downloadInfo=await download;
- expect(downloadInfo.suggestedFilename()).toMatch(/mi-presupuesto.*\.json$/);
+ expect(downloadInfo.suggestedFilename()).toMatch(/finance.*\.json$/);
 });
 test('zero month does not imply positive income',async ({page})=>{
  await expect(page.locator('.y-balance-block')).toContainText('Sin movimientos registrados este mes');
