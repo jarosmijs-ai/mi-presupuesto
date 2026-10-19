@@ -30,7 +30,7 @@ test('monthly expense rhythm reports real spend in five date bands', async ({ pa
   await expect(rhythm).toBeVisible();
   await expect(rhythm.getByRole('button')).toHaveCount(5);
   await rhythm.getByRole('button', { name: /Días 15–21/ }).click();
-  await expect(rhythm.getByText('DÍAS 15–21')).toBeVisible();
+  await expect(rhythm.getByText('DÍAS 15–21', { exact: true })).toBeVisible();
   await expect(rhythm.locator('.y-rhythm-summary')).toContainText('825');
   await expect(rhythm.locator('.y-rhythm-summary')).toContainText('59%');
   await rhythm.getByRole('button', { name: /Días 29–31/ }).click();
