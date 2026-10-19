@@ -97,7 +97,7 @@
     position: relative;
   }
   .g-app .y-live-dot {
-    animation: y-live-breathe 3.5s ease-in-out infinite;
+    animation: y-live-breathe 1.8s ease-out 1;
   }
   @keyframes y-live-breathe {
     0%, 100% { box-shadow: 0 0 0 0 rgba(154,211,181,.0); }
@@ -245,5 +245,21 @@
     animation: none !important;
     transition: none !important;
     transform: none !important;
+  }
+}
+
+/* Android PWA performance: avoid compositing large translucent backdrops.
+   All important backgrounds are already opaque, so this is visually stable. */
+@media (max-width: 760px), (pointer: coarse) {
+  .g-app .g-topbar {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+  .g-app .g-sheet-backdrop,
+  .finance-modal-backdrop,
+  .finance-drawer-backdrop,
+  .product-overlay {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
   }
 }
