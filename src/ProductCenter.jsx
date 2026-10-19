@@ -8,7 +8,7 @@ const SELECTED_MONTH_KEY = 'ux-selected-month';
 
 function loadSettings() {
   try {
-    return JSON.parse(localStorage.getItem(SETTINGS_KEY)) || { theme: 'light' };
+    return JSON.parse(localStorage.getItem(SETTINGS_KEY)) || { theme: 'dark' };
   } catch {
     return { theme: 'light' };
   }

@@ -449,7 +449,7 @@ export default function GodApp() {
           <span className="g-brand-mark">Q</span>
           <div>
             <strong>Mi Presupuesto</strong>
-            <small>Tu dinero, sin ruido.</small>
+            <small>夜の家計 / TU DINERO EN CALMA</small>
           </div>
         </div>
 

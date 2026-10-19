@@ -21,6 +21,7 @@ import './visual-polish.css';
 import './primary-biometric.css';
 import './financial-integrity.css';
 import './god.css';
+import './established-yoru.css';
 
 import { registerServiceWorker } from './registerServiceWorker';
 
