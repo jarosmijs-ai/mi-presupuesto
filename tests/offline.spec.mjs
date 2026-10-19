@@ -36,7 +36,7 @@ test('installed PWA reloads its own JavaScript and CSS offline',async ({page,con
   try {
     await page.reload({waitUntil:'domcontentloaded'});
     await expect(page.getByRole('navigation',{name:'Navegación principal'})).toBeVisible();
-    await expect(page.locator('.g-brand strong')).toHaveText('Mi Presupuesto');
+    await expect(page.locator('.g-brand strong')).toHaveText('Finance');
     expect(await page.evaluate(()=>localStorage.getItem('yoru-offline-fixture'))).toBe('retained');
   }finally{await context.setOffline(false);}
 });
