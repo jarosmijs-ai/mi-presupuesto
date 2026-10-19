@@ -1,9 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&family=Noto+Serif+JP:wght@500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap');
-
 /* ESTABLISHED / YORU NIGHT SHIFT
    A layout-first direction: analog ledger, Japanese editorial typography, precise instruments.
    No original finance business logic is touched. */
-.y-shell { --y-mono: 'IBM Plex Mono', ui-monospace, monospace; --y-head: 'Space Grotesk', sans-serif; --y-jp: 'Noto Serif JP', serif; gap:0; }
+.g-app { --y-mono: 'IBM Plex Mono', 'Roboto Mono', ui-monospace, monospace; --y-head: 'Space Grotesk', 'Arial', sans-serif; --y-jp: 'Noto Serif JP', serif; }
+.y-shell {gap:0;}
 .y-shell :is(button,.y-due-row) { -webkit-tap-highlight-color:transparent; }
 .y-edition { display:flex;align-items:stretch;justify-content:space-between;gap:16px;padding:0 0 30px;margin-top:4px; }
 .y-edition-copy{min-width:0;}
@@ -260,4 +259,63 @@ html[data-theme='light'] .y-edition h2{color:var(--g-ink);}
  .y-budget-page .g-budget-state{font-size:10px;}
  .y-loan-page .g-loan-hero h2{font-size:27px;}
  .y-more-page .g-more-grid{grid-template-columns:1fr;}
+}
+
+
+/* ESTABLISHED / type assurance
+   Legacy dark-mode selectors had important declarations for every p/small/label.
+   Constrain the priority of new authored interface copy and money states. */
+html[data-theme='dark'] .y-edition p,
+html[data-theme='dark'] .y-page-headline p {color:var(--g-muted)!important;}
+html[data-theme='dark'] .y-balance-block p.y-good {color:#afd7b8!important;}
+html[data-theme='dark'] .y-balance-block p.y-caution {color:#eda29c!important;}
+html[data-theme='dark'] .y-financial-strip span {color:#a7b7b1!important;}
+html[data-theme='dark'] .y-edition-seal small,
+html[data-theme='dark'] .y-section-label>small,
+html[data-theme='dark'] .y-receipt :is(small,p),
+html[data-theme='dark'] .y-ledger-book :is(small,p) {color:var(--g-muted)!important;}
+html[data-theme='dark'] .y-page .g-budget-edit>span {color:var(--g-muted)!important;}
+html[data-theme='dark'] .product-panel :is(input,select,textarea),
+html[data-theme='dark'] .finance-drawer :is(input,select,textarea) {
+  background:var(--y-field)!important;color:var(--g-ink)!important;border-color:var(--g-line-strong)!important;
+}
+.y-shell .y-edition h2, .y-page .y-page-headline h1, .y-shell .y-section-label h2 {
+  font-family:var(--y-head);font-optical-sizing:auto;
+}
+.y-shell .y-edition-seal>span, .y-page .y-page-kanji, .y-shell .y-jp-title,
+.y-page .y-jp-annotation {font-family:var(--y-jp);}
+.y-instrument .y-balance-block h1 {font-variant-numeric:tabular-nums lining-nums;}
+.y-shell :is(.y-financial-strip,.y-activity-summary,.y-receipt,.y-ledger-book) strong {font-variant-numeric:tabular-nums;}
+@media(max-width:540px) {
+  .y-instrument-body {min-width:0;}
+  .y-balance-block{flex:1;min-width:0;}
+  .y-instrument-serial{flex:0 0 26px;margin-right:0;}
+  .y-balance-block h1 {font-size:clamp(25px,7.5vw,38px);letter-spacing:-.09em;}
+  .y-activity-summary strong {font-size:clamp(13px,3.6vw,16px);}
+  .y-budget-page .g-budget-card-head {min-width:0;}
+  .y-budget-page .g-budget-card-head>div:nth-child(3) {min-width:0;}
+  .y-budget-page .g-budget-card-head strong {overflow-wrap:anywhere;}
+  .y-budget-page .g-budget-card-head small {white-space:nowrap;}
+  .y-budget-page .g-budget-edit input{width:70px;}
+}
+@media(max-width:360px) {
+  .y-instrument-serial{display:none;}
+  .y-balance-block h1{font-size:clamp(22px,7.6vw,30px);white-space:normal;overflow-wrap:anywhere;}
+  .y-financial-strip strong{font-size:13px;}
+  .y-page-headline h1{font-size:36px;}
+  .y-page-kanji{font-size:31px;}
+  .y-budget-totals strong{font-size:14px!important;}
+}
+/* Simple tactile behavior without introducing visual noise or animation obligations. */
+@media(prefers-reduced-motion:no-preference){
+  .y-page-heading{animation:y-section-intro .42s ease both;}
+  .y-ledger-book,.y-budget-page .g-budget-grid,.y-loan-page .g-loan-hero{
+    animation:y-section-intro .42s .07s ease both;
+  }
+  .y-action-bar button svg, .y-history-more svg, .y-mark-pending svg {
+    transition:transform .18s cubic-bezier(.2,.7,.2,1);
+  }
+  .y-action-bar button:hover svg, .y-history-more:hover svg, .y-mark-pending:hover svg {
+    transform:translate(2px,-1px);
+  }
 }
