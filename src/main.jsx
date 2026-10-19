@@ -24,6 +24,7 @@ import './god.css';
 import './yoru-atelier.css';
 import './yoru-motion.css';
 import './finance-trend.css';
+import './finance-established-charts.css';
 
 import { registerServiceWorker } from './registerServiceWorker';
 

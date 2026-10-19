@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'finance-established-v2';
+const CACHE_VERSION = 'finance-established-v3';
 
 const APP_SHELL = [
   '/',
