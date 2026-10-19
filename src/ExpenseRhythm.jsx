@@ -21,7 +21,12 @@ export function expenseWeeks(expenses = [], month = '') {
         !Number.isFinite(amount) || amount <= 0) continue;
     totals[Math.min(4, Math.floor((day - 1) / 7))] += amount;
   }
-  return totals.map((total, index) => ({ index, label: WEEK[index], total }));
+  return totals.map((total, index) => ({
+    index,
+    label: index === 4 ? (lastDay >= 29 ? `29–${lastDay}` : '—') : WEEK[index],
+    total,
+    active: index !== 4 || lastDay >= 29
+  }));
 }
 
 export default function ExpenseRhythm({ expenses, month, privateMode = false }) {
@@ -39,7 +44,7 @@ export default function ExpenseRhythm({ expenses, month, privateMode = false }) 
         <div>
           <span className="y-rhythm-kicker">02 / CADENCIA DE GASTO <span aria-hidden="true">· 支出</span></span>
           <h2>El ritmo <em>del mes.</em></h2>
-          <p>Cinco tramos de siete días. Compara cuándo se concentra tu gasto.</p>
+          <p>Hasta cinco tramos del mes. Compara cuándo se concentra tu gasto.</p>
         </div>
         <div className="y-rhythm-stamp" aria-hidden="true">MONTHLY<br/>FIELD NOTES<br/>— 05</div>
       </div>
@@ -62,7 +67,8 @@ export default function ExpenseRhythm({ expenses, month, privateMode = false }) 
                   className={week.index === selection ? 'is-selected' : ''}
                   key={week.index} type="button"
                   aria-pressed={week.index === selection}
-                  aria-label={`Días ${week.label}, gastos ${MONEY.format(week.total)}`}
+                  disabled={week.active === false}
+                  aria-label={week.active === false ? 'No hay quinto tramo este mes' : `Días ${week.label}, gastos ${MONEY.format(week.total)}`}
                   onClick={() => setSelection(week.index)}
                 >
                   <span className="y-rhythm-rail">
