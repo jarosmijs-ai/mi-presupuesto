@@ -1019,3 +1019,18 @@ html[data-theme='light'] .g-bottom-nav{background:rgba(249,247,241,.985)!importa
 }
 .y-month-close-heading small{color:var(--g-muted);font:500 10px var(--y-data);}
 @media(max-width:620px){#month-close-host{width:100%;margin:9px 0 0;}}
+
+/* Final accessibility pass: minimum readable small type on handheld screens. */
+@media(max-width:540px){
+ .g-month-bar small{font-size:10px;}
+ .y-budget-section-rule{font-size:10px;}
+ .y-budget-page .g-budget-edit>span{font-size:10px;}
+ .y-budget-page .g-budget-state{font-size:10px;}
+ .y-budget-page .g-budget-numbers span{font-size:11px;}
+ .g-app .g-bottom-nav button small{font-size:10.5px;}
+ .y-page-kicker{font-size:10px;}
+ .y-eyebrow{font-size:10px;}
+}
+@media(max-width:360px){
+ .g-app .g-bottom-nav button small{font-size:9.8px;}
+}

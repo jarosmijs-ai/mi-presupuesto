@@ -16,6 +16,8 @@ async function nav(page,section){
 }
 test.beforeEach(async ({page})=>{await seed(page);});
 test('navigation: fits viewport, no obstructive duplicate launchers',async ({page})=>{
+ await page.waitForTimeout(480);
+ await page.screenshot({path:'test-artifacts/yoru-'+test.info().project.name+'-home.png',fullPage:false});
  for(const section of ['Inicio','Movimientos','Presupuesto','Préstamo','Más']){
   await nav(page,section);
   const m=await page.evaluate(()=>{
@@ -72,6 +74,7 @@ test('loan payment and undo preserve payment records',async ({page})=>{
  await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('expenses')||'[]').filter(e=>e.source==='scheduled-loan').length)).toBe(1);
  await page.locator('.g-paid-button').first().click();
  await expect.poll(()=>page.evaluate(()=>JSON.parse(localStorage.getItem('expenses')||'[]').filter(e=>e.source==='scheduled-loan').length)).toBe(0);
+ await page.screenshot({path:'test-artifacts/yoru-'+test.info().project.name+'-loan.png',fullPage:false});
 });
 test('More opens plans, settings and downloads local backup',async ({page})=>{
  await nav(page,'Más');
@@ -89,4 +92,36 @@ test('More opens plans, settings and downloads local backup',async ({page})=>{
 test('zero month does not imply positive income',async ({page})=>{
  await expect(page.locator('.y-balance-block')).toContainText('Sin movimientos registrados este mes');
  await expect(page.locator('.y-balance-block')).not.toContainText('Ingresos por encima de gastos');
+});
+
+test('closing and reopening a month is available only from More',async ({page})=>{
+ await nav(page,'Más');
+ const host=page.locator('#month-close-host');
+ await expect(host).toBeVisible();
+ page.once('dialog',d=>d.accept());
+ await host.getByRole('button',{name:'Cerrar mes'}).click();
+ await expect(host.locator('.month-close-control')).toHaveClass(/is-closed/);
+ await expect.poll(()=>page.evaluate(()=>Boolean(JSON.parse(localStorage.getItem('closed-months')||'{}')['2026-10']))).toBe(true);
+ page.once('dialog',d=>d.accept());
+ await host.getByRole('button',{name:'Reabrir mes'}).click();
+ await expect(host.locator('.month-close-control')).toHaveClass(/is-open/);
+});
+test('invalid backup import leaves existing local records untouched',async ({page})=>{
+ await nav(page,'Más');
+ await page.evaluate(()=>localStorage.setItem('yoru-fixture-sentinel','kept'));
+ page.once('dialog',d=>d.accept());
+ await page.locator('input.backup-file-input').setInputFiles({
+  name:'invalid.json',mimeType:'application/json',
+  buffer:Buffer.from(JSON.stringify({app:'mi-presupuesto',version:2,data:{expenses:8}}))
+ });
+ await expect(page.getByText(/El respaldo contiene registros inválidos/)).toBeVisible();
+ expect(await page.evaluate(()=>localStorage.getItem('yoru-fixture-sentinel'))).toBe('kept');
+});
+test('PDF report is downloaded using the on-demand renderer',async ({page})=>{
+ await nav(page,'Más');
+ await page.getByRole('button',{name:/Ajustes y reportes/}).click();
+ const fileDownload=page.waitForEvent('download',{timeout:25000});
+ await page.getByRole('button',{name:'Descargar PDF'}).click();
+ const file=await fileDownload;
+ expect(file.suggestedFilename()).toMatch(/\.pdf$/);
 });

@@ -31,10 +31,12 @@ test('installed PWA reloads its own JavaScript and CSS offline',async ({page,con
   expect(controlled,'service worker should install before going offline').toBe(true);
   await page.reload();
   await expect(page.getByRole('navigation',{name:'Navegación principal'})).toBeVisible();
+  await page.evaluate(()=>localStorage.setItem('yoru-offline-fixture','retained'));
   await context.setOffline(true);
   try {
     await page.reload({waitUntil:'domcontentloaded'});
     await expect(page.getByRole('navigation',{name:'Navegación principal'})).toBeVisible();
     await expect(page.locator('.g-brand strong')).toHaveText('Mi Presupuesto');
+    expect(await page.evaluate(()=>localStorage.getItem('yoru-offline-fixture'))).toBe('retained');
   }finally{await context.setOffline(false);}
 });
