@@ -480,12 +480,13 @@ export default function GodApp() {
         <button type="button" onClick={() => moveMonth(-1)} aria-label="Mes anterior"><ChevronLeft size={20} /></button>
         <div>
           <small>MES ACTIVO</small>
-          <strong>{formatMonthLabel(month)}</strong>
+          <strong className="y-month-label" key={month}>{formatMonthLabel(month)}</strong>
         </div>
         <button type="button" onClick={() => moveMonth(1)} aria-label="Mes siguiente"><ChevronRight size={20} /></button>
       </div>
 
       <main className="g-main">
+        <div className="y-route-cue" data-route={section} key={`cue-${section}`} aria-hidden="true" />
         {section === 'home' && (
           <HomeView
             formatMoney={formatMoney}
@@ -636,6 +637,7 @@ function HomeView({
       </header>
 
       <section className="y-instrument" aria-label="Resumen financiero mensual">
+        <span className="y-instrument-glint" aria-hidden="true" />
         <div className="y-instrument-top">
           <span><span className="y-live-dot" aria-hidden="true"/> RESUMEN MENSUAL <span className="y-micro-muted">/ 月次</span></span>
           <span className="y-local-tag"><LockKeyhole size={12}/> DATOS EN TU DISPOSITIVO</span>
