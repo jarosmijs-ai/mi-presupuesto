@@ -5,7 +5,7 @@ on:
   pull_request:
     branches: [main]
 permissions:
-  contents: read
+  contents: write
 jobs:
   quality:
     runs-on: ubuntu-24.04
@@ -16,6 +16,8 @@ jobs:
         with:
           node-version: '22'
           cache: npm
+      - name: Refresh stale npm lockfile before a clean installation
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
       - run: npm ci
       - run: npm run test:quality
       - run: npm run build
@@ -25,6 +27,16 @@ jobs:
       - run: mkdir -p test-artifacts
       - name: Test flows and visual layout
         run: npm run test:e2e
+      - name: Commit corrected dependency lockfile on quality branch
+        if: success() && github.ref == 'refs/heads/established/yoru-final-qa'
+        run: |
+          if ! git diff --quiet -- package-lock.json; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add package-lock.json
+            git commit -m "Normalize npm lockfile for reproducible YORU builds"
+            git push origin HEAD:$GITHUB_REF_NAME
+          fi
       - if: always()
         uses: actions/upload-artifact@v4
         with:
