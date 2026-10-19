@@ -185,17 +185,18 @@
     animation: y-overlay-arrive 190ms ease-out both;
   }
   @keyframes y-overlay-arrive {
-    from { backdrop-filter: blur(0); -webkit-backdrop-filter: blur(0); }
-    to { backdrop-filter: blur(9px); -webkit-backdrop-filter: blur(9px); }
+    from { opacity: .88; }
+    to { opacity: 1; }
   }
-  .g-app .g-sheet,
-  .finance-drawer,
-  .product-panel {
-    animation: y-panel-arrive 340ms var(--y-ease-out) both;
-  }
+  .g-app .g-sheet { animation: y-panel-arrive 340ms var(--y-ease-out) both; }
+  .finance-drawer,.product-panel { animation: y-drawer-arrive 340ms var(--y-ease-out) both; }
   @keyframes y-panel-arrive {
     from { transform: translate3d(0,20px,0) scale(.995); }
     to { transform: translate3d(0,0,0) scale(1); }
+  }
+  @keyframes y-drawer-arrive {
+    from { transform: translate3d(22px,0,0); }
+    to { transform: translate3d(0,0,0); }
   }
 
   /* Notifications appear without a blocking invisible overlay. */
@@ -203,8 +204,9 @@
     animation: y-toast-pop 280ms var(--y-ease-spring) both;
   }
   @keyframes y-toast-pop {
-    from { transform: translate3d(0,10px,0) scale(.985); }
-    to { transform: translate3d(0,0,0) scale(1); }
+    /* Preserve translateX(-50%): the fixed status toast is centered. */
+    from { transform: translate3d(-50%,10px,0) scale(.985); }
+    to { transform: translate3d(-50%,0,0) scale(1); }
   }
   .month-integrity-toast {
     animation: y-integrity-pop 280ms var(--y-ease-out) both;
